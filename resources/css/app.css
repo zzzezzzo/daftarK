@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@media print {
+    body * { visibility: hidden; }
+    #invoiceArea, #invoiceArea * { visibility: visible; }
+    #invoiceArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none;
+    }
+    .print\:hidden{ display:none; }
+}
+
+@media print {
+
+    body{
+        background:white !important;
+    }
+
+    /* اخفاء كل حاجة */
+    body *{
+        visibility:hidden;
+    }
+
+    /* اظهار الفاتورة فقط */
+    #print-area,
+    #print-area *{
+        visibility:visible;
+            max-height:95vh !important;
+        overflow:hidden !important;
+    }
+
+    #print-area{
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+        padding:10px;
+        background:white !important;
+    }
+
+    /* اخفاء الازرار */
+    /* .no-print{
+        display:none !important;
+    } */
+
+    /* ===================== */
+    /* الاتجاه بالعرض */
+    @page{
+        size:A4 landscape;   /* 👈 بالجنب */
+        margin:8mm;
+    }
+
+    /* ===================== */
+    /* الهيدر أفقي */
+    .head-invoice{
+        display:flex !important;
+        flex-direction:row !important;
+        align-items:center !important;
+        /* justify-content:space-between !important; */
+        width:100% !important;
+        margin-bottom:10px !important;
+    }
+
+    .head-invoice > div{
+        /* width:auto !important; */
+        flex:1 !important;
+    }
+    .user-info{
+        position:absolute;
+        top:10px;
+        left:10px;
+    }
+
+    /* ===================== */
+    /* منع كسر الصفحات */
+    table, tr, td, th, thead, tbody{
+        page-break-inside:avoid !important;
+        break-inside:avoid !important;
+    }
+
+    .bg-white,
+    .shadow-xl,
+    .shadow-lg{
+        page-break-inside:avoid !important;
+    }
+
+    /* ===================== */
+    /* إزالة الألوان */
+    .bg-gradient-to-r,
+    .bg-gradient-to-br,
+    .bg-white\/10{
+        background:white !important;
+        color:black !important;
+    }
+
+    /* ===================== */
+    /* الجدول في الطباعة */
+    table{
+        width:100%;
+        border-collapse:collapse !important;
+    }
+
+    th, td{
+        padding:6px !important;
+        font-size:11px !important;
+        color:black !important;
+    }
+
+    /* ===================== */
+    /* العناوين */
+    h1{
+        font-size:18px !important;
+        margin:0 !important;
+    }
+
+    h2{
+        font-size:14px !important;
+        margin:0 !important;
+    }
+
+}
+
+
+
+
