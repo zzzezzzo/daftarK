@@ -50,7 +50,7 @@
                             <i class="bi bi-receipt text-blue-500 text-sm"></i>
                             <span>جميع فواتير العملاء</span>
                         </a>
-                        <a href="{{ route('customer.index') }}" class="flex items-center gap-3 px-8 py-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-800 transition-colors text-sm">
+                        <a href="{{ route('customer.transactions.index') }}" class="flex items-center gap-3 px-8 py-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-800 transition-colors text-sm">
                             <i class="bi bi-arrow-left-right text-purple-500 text-sm"></i>
                             <span>معاملات العملاء (لكل عميل)</span>
                         </a>

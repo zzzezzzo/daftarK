@@ -13,7 +13,7 @@ class productController extends Controller
 {
     public function index(Request $request)
     {
-        $products = product::with('category');
+        $products = Product::with('category');
         if($request->filled('search')){
             $search = $request->search;
             $products->where(function($q) use ($search){

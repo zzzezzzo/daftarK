@@ -92,7 +92,7 @@ class accountStatement extends Controller
             }
         }
         
-        $transactions = $transactions->latest('transaction_date')->get();
+        $transactions = $transactions->latest('transaction_date')->paginate(10);
         
         // Calculate balance
         $totalDeposits = $transactions->where('type', 'deposit')->sum('amount');
@@ -151,7 +151,7 @@ class accountStatement extends Controller
         }
 
         Alert::success('نجاح', 'تم إضافة معاملة المورد بنجاح');
-        return redirect()->route('supplierAccountStatement.transactionIndex', $supplier->id);
+        return redirect()->route('supplierAccountStatement.index', $supplier->id);
     }
     
     public function create($id){
