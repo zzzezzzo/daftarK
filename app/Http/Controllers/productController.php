@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\category;
-use App\Models\product;
+use App\Models\Product;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 
