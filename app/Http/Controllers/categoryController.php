@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\category;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = category::with('priceRate')->paginate();
+        $categories = Category::with('priceRate')->paginate();
         return view('category.index', compact('categories'));
     }
     
@@ -29,7 +29,7 @@ class CategoryController extends Controller
     
     public function edit($id)
     {
-        $category = category::with('priceRate')->findOrFail($id);
+        $category = Category::with('priceRate')->findOrFail($id);
         return view('category.edit', compact('category'));
     }
     
@@ -39,7 +39,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name,'.$id
         ]);
 
-        $category = category::findOrFail($id);
+        $category = Category::findOrFail($id);
         $category->update([
             'name' => $request->name
         ]);
@@ -50,7 +50,7 @@ class CategoryController extends Controller
     
     public function destroy($id)
     {
-        $category = category::findOrFail($id);
+        $category = Category::findOrFail($id);
         $category->delete();
         
         // Return JSON for AJAX handling

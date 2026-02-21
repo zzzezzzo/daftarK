@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use App\Models\category;
+use App\Models\Category;
 use App\Models\Product;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
@@ -28,7 +28,7 @@ class ProductController extends Controller
     
     public function create()
     {
-        $categories = category::all();
+        $categories = Category::all();
         return view('product.create', compact('categories'));
     }
     
@@ -36,7 +36,7 @@ class ProductController extends Controller
     {
         $validatedData = $request->validated();
         // Calculate trade and technical prices based on category rates if not provided
-        $category = category::with('priceRate')->find($validatedData['category_id']);
+        $category = Category::with('priceRate')->find($validatedData['category_id']);
         $basePrice = $validatedData['price_base'];
         if ($category && $category->priceRate) {
             // الحالة 1: الحساب بناءً على نسب القسم
@@ -50,26 +50,26 @@ class ProductController extends Controller
             $validatedData['price_customer']   = $basePrice;
         }
         
-        product::create($validatedData);
+        Product::create($validatedData);
         Alert::success('نجاح', 'تم اضافة المنتج بنجاح');
         return redirect()->route('products.index')->with('success', 'تم إضافة المنتج بنجاح.');
     }
     
     public function edit($id)
     {
-        $product = product::with('category')->findOrFail($id);
-        $categories = category::all();
+        $product = Product::with('category')->findOrFail($id);
+        $categories = Category::all();
         return view('product.edit', compact('product', 'categories'));
     }
     
     public function update(UpdateProductRequest $request, $id)
     {
-        $product = product::findOrFail($id);
+        $product = Product::findOrFail($id);
         $validatedData = $request->validated();
         
         // Calculate trade and technical prices based on category rates if not provided
         if (!isset($validatedData['price_trade']) || $validatedData['price_trade'] === null) {
-            $category = category::find($validatedData['category_id']);
+            $category = Category::find($validatedData['category_id']);
             if ($category && $category->priceRate) {
                 $basePrice = $validatedData['price_base'] ?? $product->price_base;
                 $validatedData['price_trade'] = $basePrice + $basePrice * ($category->priceRate->rate_trade / 100);
@@ -85,7 +85,7 @@ class ProductController extends Controller
     
     public function destroy($id)
     {
-        $product = product::findOrFail($id);
+        $product = Product::findOrFail($id);
         $product->delete();
         return redirect()->route('products.index')->with('success', 'تم حذف المنتج بنجاح.');
     }
