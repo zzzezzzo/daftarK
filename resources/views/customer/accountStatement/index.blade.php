@@ -40,87 +40,166 @@
                 </div>
             </div>
 
-            <!-- Balance Card -->
-            @if ($customer->type == 'permanent')
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
-                                <i class="bi bi-cash-stack text-green-600 text-2xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">الرصيد الحالي</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">إجمالي المبلغ المتبقي</p>
-                                <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ $remaining_amount }}</p>
-                            </div>
-                                @if($customer->type == 'permanent')
-                                <div class="w-1/2 mt-9">
-                                    <!-- Button trigger modal -->
-                                    <button id="openModalBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                                    المحفظة
-                                    </button>
-                                    <div id="myModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-11/12 max-w-md">
-                                        <!-- Header -->
-                                        <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
-                                        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">اضافة رصيد للمحفظة</h2>
-                                        <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">&times;</button>
-                                        </div>
-
-                                        <!-- Body -->
-                                        <div class="p-4 text-gray-700 dark:text-gray-300">
-                                            <form action="{{ route('customerWallet.store', $customer->id) }}" method="POST">
-                                                @csrf
-                                                <input type="number" name="balance" id="balance" placeholder="أدخل المبلغ" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                                                    إضافة
-                                                </button>
-                                            </form>
-                                        </div>
-                                        <!-- Footer -->
-                                        <div class="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-700">
-                                        <button id="closeModalBtn2" class="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600 transition">
-                                            Close
-                                        </button>
-                                        {{-- <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                                            Save changes
-                                        </button> --}}
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                                @endif
-                            
+            <!-- Balance Cards Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- Current Balance Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="bi bi-cash-stack text-white text-xl"></i>
                         </div>
                         <div class="text-right">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">
-                                <p>آخر تحديث</p>
-                                <p class="text-lg font-semibold text-gray-700 dark:text-gray-300">{{ now()->format('Y-m-d H:i') }}</p>
-                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">الرصيد الحالي</p>
+                            <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ number_format($remaining_amount, 2) }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">ج.م</p>
                         </div>
                     </div>
-                    
-                    <!-- Wallet Balance Display -->
-                    @if($customer->wallet )
-                        <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
-                                        <i class="bi bi-wallet2 text-blue-600 text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-sm font-semibold text-gray-800 dark:text-white">رصيد المحفظة</h4>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400">متاح للدفع التلقائي</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ number_format($customer->wallet->balance, 2) }} ج.م</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>إجمالي المبلغ المتبقي</span>
+                        <i class="bi bi-graph-up text-green-500"></i>
+                    </div>
+                </div>
+
+                <!-- Wallet Balance Card -->
+                @if($customer->wallet && $customer->type === 'permanent')
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="bi bi-wallet2 text-white text-xl"></i>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">رصيد المحفظة</p>
+                            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ number_format($customer->wallet->balance, 2) }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">ج.م</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>متاح للدفع التلقائي</span>
+                        <i class="bi bi-shield-check text-blue-500"></i>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Total Sales Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="bi bi-cart-check text-white text-xl"></i>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">إجمالي المبيعات</p>
+                            <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ number_format($invoices->where('type', 'payment')->sum('total_amount'), 2) }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">ج.م</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>{{ $invoices->where('type', 'payment')->count() }} فاتورة</span>
+                        <i class="bi bi-trending-up text-purple-500"></i>
+                    </div>
+                </div>
+
+                <!-- Actions Card -->
+                @if ($customer->type == "permanent")
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-xl p-6 border border-indigo-200 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
+                            <i class="bi bi-lightning-charge text-white text-xl"></i>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-white/80 uppercase tracking-wide">إجراءات سريعة</p>
+                            <p class="text-lg font-bold text-white">{{ $customer->type == 'permanent' ? 'عميل دائم' : 'عميل عابر' }}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="document.getElementById('walletModal').classList.remove('hidden')" class="w-full bg-white/20 hover:bg-white/30 backdrop-blur text-white px-3 py-2 rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                            <i class="bi bi-plus-circle"></i>
+                            شحن المحفظة
+                        </button>
+                        <button onclick="document.getElementById('paymentModal').classList.remove('hidden')" class="w-full bg-white/20 hover:bg-white/30 backdrop-blur text-white px-3 py-2 rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                            <i class="bi bi-cash-stack"></i>
+                            سحب من الخزينة
+                        </button>
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            <!-- Wallet Modal -->
+            <div id="walletModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-t-2xl">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <i class="bi bi-wallet2"></i>
+                                شحن محفظة العميل
+                            </h3>
+                            <button onclick="document.getElementById('walletModal').classList.add('hidden')" class="text-white/80 hover:text-white">
+                                <i class="bi bi-x-lg text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <form action="{{ route('customerWallet.store', $customer->id) }}" method="POST">
+                            @csrf
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المبلغ</label>
+                                <div class="relative">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">ج.م</span>
+                                    <input type="number" name="balance" step="0.01" min="0.01" required
+                                           class="w-full pr-12 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                           placeholder="0.00">
                                 </div>
                             </div>
-                        </div>
-                    @endif
+                            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium">
+                                <i class="bi bi-check-circle"></i>
+                                تأكيد الشحن
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            @endif
+            </div>
+
+            <!-- Payment Modal -->
+            <div id="paymentModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-6 rounded-t-2xl">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <i class="bi bi-cash-stack"></i>
+                                سحب من الخزينة
+                            </h3>
+                            <button onclick="document.getElementById('paymentModal').classList.add('hidden')" class="text-white/80 hover:text-white">
+                                <i class="bi bi-x-lg text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <form id="paymentForm" method="POST" action="{{ route('customer.treasury.payment', $customer->id) }}">
+                            @csrf
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المبلغ</label>
+                                <div class="relative">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">ج.م</span>
+                                    <input type="number" name="amount" step="0.01" min="0.01" required
+                                           class="w-full pr-12 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                           placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الوصف</label>
+                                <textarea name="description" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
+                                          placeholder="وصف العملية..."></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all font-medium">
+                                <i class="bi bi-check-circle"></i>
+                                تأكيد السحب
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Invoices Table -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
                 <div class="p-6">

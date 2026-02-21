@@ -78,12 +78,13 @@ Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::get('/customer/{id}/accountStatement/transactions',[accountStatementController::class, 'transactionIndex'])->name('customerAccountStatement.transactionIndex');
     Route::get('/customer/{id}/accountStatement/create',[accountStatementController::class, 'create'])->name('customerAccountStatement.create');
     Route::post('/customer/{id}/accountStatement/create',[accountStatementController::class, 'store'])->name('customerAccountStatement.store');
-    Route::get('/customer/{id}/accountStatement/transaction/create',[accountStatementController::class, 'createTransaction'])->name('customerAccountStatement.createTransaction');
+    Route::get('/customer/{id}/accountStatement/transaction/create',[accountStatementController::class,'createTransaction'])->name('customerAccountStatement.createTransaction');
     Route::post('/customer/{id}/accountStatement/transaction',[accountStatementController::class, 'storeTransaction'])->name('customerAccountStatement.storeTransaction');
     Route::get('/customer/{id}/accountStatement/{invoiceId}/edit', [accountStatementController::class, 'edit'])->name('customerAccountStatement.edit');
     Route::get('/customer/{id}/accountStatement/{invoiceId}/show', [accountStatementController::class, 'show'])->name('customerAccountStatement.show');
     Route::put('/customer/{id}/accountStatement/{invoiceId}', [accountStatementController::class, 'update'])->name('customerAccountStatement.update');
     Route::delete('/customer/{id}/accountStatement/{invoiceId}', [accountStatementController::class, 'destroy'])->name('customerAccountStatement.destroy');
+    Route::post('/customer/{id}/treasury/payment', [accountStatementController::class, 'treasuryPayment'])->name('customer.treasury.payment');
     
     // customer invoices and transactions
     Route::get('/customer/invoices', [CustomerInvoiceController::class, 'index'])->name('customer.invoices.index');
@@ -106,7 +107,7 @@ Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::get('/categoryPriceRates/{categoryId}/create', [CategoryPriceRateController::class, 'create'])->name('categoryPriceRates.create');
     Route::post('/categoryPriceRates/{categoryId}', [CategoryPriceRateController::class, 'store'])->name('categoryPriceRates.store');
     Route::delete('/categoryPriceRates/{categoryId}', [CategoryPriceRateController::class, 'destroy'])->name('categoryPriceRates.destroy');
-  
+
 
 
 

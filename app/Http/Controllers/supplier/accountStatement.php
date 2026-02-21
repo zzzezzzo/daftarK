@@ -157,7 +157,7 @@ class accountStatement extends Controller
     public function create($id){
         $supplier = Supplier::findOrFail($id);
         $products = Product::all();
-        return view('supplier.accountStatement.create', compact('supplier', 'products'));
+        return view('supplier.accountStatement.create-modern', compact('supplier', 'products'));
     }
     
     public function show($supplierId, $invoiceId)
@@ -318,7 +318,7 @@ class accountStatement extends Controller
         $supplier = Supplier::findOrFail($supplierId);
         $invoice = SupplierInvoice::with('items.product','payment')->findOrFail($invoiceId);
         $products = Product::all(); // كل المنتجات لاختيارها في form
-        return view('supplier.accountStatement.edit', compact('supplier','invoice','products'));
+        return view('supplier.accountStatement.edit-modern', compact('supplier','invoice','products'));
     }
     
     /**
@@ -458,9 +458,7 @@ class accountStatement extends Controller
         if($request->amount > $totalRemaining){
             Alert::error('فشل', 'المبلغ المدفوع أكبر من إجمالي المتبقي على الفواتير. المبلغ المتبقي: ' . number_format($totalRemaining, 2));
             return redirect()->back();
-        }
-
-        
+        }        
         DB::beginTransaction();
         try{
             // Create supplier transaction

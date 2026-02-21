@@ -17,3 +17,14 @@ closeBtns.forEach(btn => {
 modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.add('hidden');
 });
+const openBtn2 = document.getElementById('openPaymentModalBtn');
+const closePaymentBtns = [document.getElementById('closePaymentModalBtn'), document.getElementById('closePaymentModalBtn2')];
+openBtn2.addEventListener('click', () => {
+    document.getElementById('paymentModal').classList.remove('hidden');
+});
+
+closePaymentBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.getElementById('paymentModal').classList.add('hidden');
+    });
+});

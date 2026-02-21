@@ -16,6 +16,7 @@ class CashBoxController extends Controller
             $query->latest()->limit(10);
         }])->get();
 
+        // return view('cashBox.index', compact('cashBoxes'));
         return view('cashBox.index', compact('cashBoxes'));
     }
 
@@ -59,12 +60,28 @@ class CashBoxController extends Controller
         return redirect()->route('cashBoxes.index');
     }
 
-    public function show(CashBox $cashBox)
+    public function show(CashBox $cashBox, Request $request)
     {
-        $transactions = $cashBox->transactions()
-            ->with(['user'])
-            ->latest()
-            ->paginate(50);
+        $query = $cashBox->transactions()->with(['user']);
+        
+        // Apply date filters if provided
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+        
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+        
+        // Apply transaction type filter if provided
+        if ($request->filled('transaction_type')) {
+            $query->where('type', $request->transaction_type);
+        }
+        
+        $transactions = $query->latest()->paginate(10);
+        
+        // Preserve query parameters in pagination
+        $transactions->appends($request->query());
 
         return view('cashBox.show', compact('cashBox', 'transactions'));
     }

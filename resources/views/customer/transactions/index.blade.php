@@ -141,18 +141,21 @@
                                         </div>
                                     </td>
                                     <td class="p-4 text-gray-600 dark:text-gray-400">
-                                        {{ $transaction->transaction_date ? $transaction->transaction_date->format('Y-m-d H:i') : $transaction->created_at->format('Y-m-d H:i') }}
+                                        {{-- {{ $transaction->transaction_date ? $transaction->transaction_date->format('Y-m-d') : $transaction->created_at->format('Y-m-d H:i') }} --}}
                                     </td>
                                     <td class="p-4">
                                         <span class="px-2 py-1 rounded-full text-xs font-medium 
                                             @if($transaction->type == 'sale') bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400
                                             @elseif($transaction->type == 'return') bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400
                                             @elseif($transaction->type == 'payment') bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400
+                                            @elseif($transaction->type == 'deposit') bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400
                                             @else bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-400 @endif">
                                             @if($transaction->type == 'sale') بيع
                                             @elseif($transaction->type == 'return') مرتجع
                                             @elseif($transaction->type == 'payment') دفعة
-                                            @else تعديل @endif
+                                            @elseif($transaction->type == 'deposit') إيداع
+                                            {{-- @else تعديل @endif --}}
+                                            @endif
                                         </span>
                                     </td>
                                     <td class="p-4 text-right font-bold">

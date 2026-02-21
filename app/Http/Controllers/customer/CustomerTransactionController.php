@@ -13,7 +13,6 @@ class CustomerTransactionController extends Controller
     public function index(Request $request)
     {
         $transactions = CustomerTransaction::with('customer');
-        
         // Add search functionality
         if($request->filled('search')){
             $search = $request->search;
@@ -80,7 +79,6 @@ class CustomerTransactionController extends Controller
             'type' => $request->type,
             'amount' => $request->amount,
             'description' => $request->description,
-            'method' => $request->method ?? 'cash',
             'transaction_date' => $request->transaction_date,
             'reference_type' => 'manual'
         ]);

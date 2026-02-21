@@ -148,10 +148,94 @@
             <!-- Transactions Table -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                        <i class="bi bi-list-ul text-blue-600"></i>
-                        سجل المعاملات
-                    </h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+                            <i class="bi bi-list-ul text-blue-600"></i>
+                            سجل المعاملات
+                        </h3>
+                        
+                        <!-- Search Form -->
+                        <form action="{{ route('cashBoxes.show', $cashBox->id) }}" method="GET" class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-4 rounded-xl border border-blue-200 dark:border-gray-500">
+                            <div class="flex flex-wrap items-end gap-4">
+                                <!-- From Date -->
+                                <div class="flex-1 min-w-[200px]">
+                                    <label class="flex items-center gap-2 mb-2 font-semibold text-gray-700 dark:text-gray-300">
+                                        <i class="bi bi-calendar-event text-blue-600"></i>
+                                        من تاريخ
+                                    </label>
+                                    <div class="relative">
+                                        <input 
+                                            type="date" 
+                                            name="from_date" 
+                                            value="{{ request('from_date') }}"
+                                            class="w-full p-3 pr-10 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all">
+                                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                            <i class="bi bi-calendar"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- To Date -->
+                                <div class="flex-1 min-w-[200px]">
+                                    <label class="flex items-center gap-2 mb-2 font-semibold text-gray-700 dark:text-gray-300">
+                                        <i class="bi bi-calendar-check text-blue-600"></i>
+                                        إلى تاريخ
+                                    </label>
+                                    <div class="relative">
+                                        <input 
+                                            type="date" 
+                                            name="to_date" 
+                                            value="{{ request('to_date') }}"
+                                            class="w-full p-3 pr-10 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all">
+                                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                            <i class="bi bi-calendar"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Transaction Type -->
+                                <div class="flex-1 min-w-[150px]">
+                                    <label class="flex items-center gap-2 mb-2 font-semibold text-gray-700 dark:text-gray-300">
+                                        <i class="bi bi-funnel text-blue-600"></i>
+                                        النوع
+                                    </label>
+                                    <div class="relative">
+                                        <select 
+                                            name="transaction_type" 
+                                            class="w-full p-3 pr-10 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all appearance-none">
+                                            <option value="">الكل</option>
+                                            <option value="in" {{ request('transaction_type') == 'in' ? 'selected' : '' }}>إيداع</option>
+                                            <option value="out" {{ request('transaction_type') == 'out' ? 'selected' : '' }}>سحب</option>
+                                        </select>
+                                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                            <i class="bi bi-chevron-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Buttons -->
+                                <div class="flex gap-2">
+                                    <!-- Search Button -->
+                                    <button 
+                                        type="submit" 
+                                        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg font-bold flex items-center gap-2">
+                                        <i class="bi bi-search"></i>
+                                        <span>بحث</span>
+                                    </button>
+                                    
+                                    <!-- Clear Button -->
+                                    @if(request()->hasAny(['from_date', 'to_date', 'transaction_type']))
+                                        <a 
+                                            href="{{ route('cashBoxes.show', $cashBox->id) }}" 
+                                            class="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg font-bold flex items-center gap-2">
+                                            <i class="bi bi-x-circle"></i>
+                                            <span>مسح</span>
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                     
                     <div class="overflow-x-auto">
                         <table class="w-full">

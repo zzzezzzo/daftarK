@@ -44,28 +44,29 @@
             @endif
 
             <!-- Customer Info Card -->
-                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-blue-200 dark:border-gray-500 mb-6">
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
-                                <i class="bi bi-person text-2xl text-blue-600"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-white">{{ $customer->name }}</h3>
-                                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                    <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-sm font-medium">
-                                        {{ $customer->type == 'permanent' ? 'دائم' : 'عابر' }}
-                                    </span>
-                                    <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-full text-sm font-medium">
-                                        {{ $customer->price_type }}
-                                    </span>
-                                    @if($customer->wallet)
-                                        <span class="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-sm font-medium">
-                                            رصيد المحفظة: {{ number_format($customer->wallet->balance, 2) }} ج.م
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-blue-200 dark:border-gray-500 mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+                        <i class="bi bi-person text-2xl text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-white">{{ $customer->name }}</h3>
+                        <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-sm font-medium">
+                                {{ $customer->type == 'permanent' ? 'دائم' : 'عابر' }}
+                            </span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-full text-sm font-medium">
+                                {{ $customer->price_type }}
+                            </span>
+                            @if($customer->wallet)
+                                <span class="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-sm font-medium">
+                                    رصيد المحفظة: {{ number_format($customer->wallet->balance, 2) }} ج.م
+                                </span>
+                            @endif
                         </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Main Form Card -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
@@ -105,10 +106,10 @@
                                         required>
                                         <option value="payment">بيع</option>
                                         <option value="return">مرتجع</option>
-                                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
-                                            <i class="bi bi-chevron-down"></i>
-                                        </div>
                                     </select>
+                                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -126,98 +127,166 @@
                             </div>
                         </div>
                         
-                        <div id="itemsWrapper" class="space-y-4">
-                            <!-- First Item (Template) -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                                <div class="w-full relative">
-                                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 items-center gap-2">
-                                        <i class="bi bi-tag text-blue-600"></i>
-                                        المنتج
+                        <!-- Simple Product Addition -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mb-6 border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
+                                        <i class="bi bi-plus-circle text-green-600 text-xl"></i>
+                                    </div>
+                                    إضافة منتج
+                                </h3>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    ابحث عن المنتج وأضفه للفاتورة
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                                <!-- Product Name -->
+                                <div class="relative">
+                                    <label class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
+                                        <i class="bi bi-search text-blue-600"></i>
+                                        اسم المنتج
                                     </label>
                                     <div class="relative">
-                                        <select 
-                                            name="products[0][product_id]" 
-                                            id="productSelect"
-                                            class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all appearance-none"
-                                            required
-                                            onchange="updateProductPrice(this)">
-                                            <option value="" disabled selected>اختر المنتج</option>
-                                            @foreach($products as $product)
-                                                <option value="{{ $product->id }}" 
-                                                        data-category="{{ $product->category_id }}"
-                                                        data-base-price="{{ $product->price_base }}"
-                                                        data-trade-price="{{ $product->getPriceForCustomerType('trade') }}"
-                                                        data-technical-price="{{ $product->getPriceForCustomerType('technical') }}"
-                                                        data-client-price="{{ $product->getPriceForCustomerType('client') }}"
-                                                        data-stock="{{ $product->stock }}">
-                                                    {{ $product->name }} (المتوفر: {{ $product->stock }})
-                                                </option>
-                                            @endforeach
-                                            <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
-                                                <i class="bi bi-chevron-down"></i>
-                                            </div>
-                                        </select>
+                                        <input type="text"
+                                               id="productSearch"
+                                               class="w-full p-4 pr-12 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                                               placeholder="ابحث عن منتج..."
+                                               autocomplete="off">
+                                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <i class="bi bi-search"></i>
+                                        </div>
+                                    </div>
+
+                                    <!-- Suggestions Box -->
+                                    <div id="suggestionsBox"
+                                         class="absolute top-full left-0 right-0 mt-2 w-full bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-xl shadow-2xl hidden z-50 max-h-80 overflow-y-auto">
                                     </div>
                                 </div>
-                                <div class="w-full relative">
-                                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 items-center gap-2">
+
+                                <!-- Quantity -->
+                                <div>
+                                    <label class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
                                         <i class="bi bi-123 text-blue-600"></i>
                                         الكمية
                                     </label>
                                     <div class="relative">
-                                        <input 
-                                            type="number" 
-                                            name="products[0][quantity]" 
-                                            value="1" 
-                                            min="1" 
-                                            class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
-                                            required
-                                            onchange="calculateItemTotal(this)"
-                                            oninput="validateStock(this)">
+                                        <input type="number"
+                                               id="productQty"
+                                               class="w-full p-4 pr-12 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                                               value="1"
+                                               min="1">
                                         <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                                             <i class="bi bi-123"></i>
                                         </div>
                                     </div>
-                                    <div id="stockWarning-0" class="mt-1 text-sm text-red-600 dark:text-red-400 hidden">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                        <span class="stock-warning-text"></span>
+                                </div>
+
+                                <!-- Price (Readonly) -->
+                                <div>
+                                    <label class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
+                                        <i class="bi bi-currency-dollar text-blue-600"></i>
+                                        السعر
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text"
+                                               id="productPrice"
+                                               class="w-full p-4 pr-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold"
+                                               readonly
+                                               placeholder="0.00">
+                                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <i class="bi bi-currency-dollar"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="w-full flex items-end">
-                                    <button 
-                                        type="button" 
-                                        class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
-                                        onclick="removeItem(this)">
-                                        <i class="bi bi-trash3"></i>
+
+                                <!-- Add Button -->
+                                <div>
+                                    <label class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
+                                        &nbsp;
+                                    </label>
+                                    <button type="button"
+                                            class="w-full px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg font-bold flex items-center justify-center gap-2"
+                                            onclick="addProductToInvoice()">
+                                        <i class="bi bi-plus-lg text-xl"></i>
+                                        إضافة للفاتورة
                                     </button>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Total Calculation Section -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-6">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-                                    <i class="bi bi-calculator text-blue-600"></i>
-                                    إجمالي الفاتورة
-                                </h3>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">
-                                    يتم حساب الإجمالي تلقائياً
+                        
+                        <!-- Products List -->
+                        <div id="productsList" class="mt-6">
+                            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h4 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+                                            <i class="bi bi-list-ul text-blue-700"></i>
+                                        </div>
+                                        المنتجات المضافة
+                                    </h4>
+                                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                                        <span id="productsCount">0</span> منتجات
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full border-collapse">
+                                        <thead>
+                                            <tr class="bg-gray-100 dark:bg-gray-700 border-b-2 border-gray-200 dark:border-gray-600">
+                                                <th class="p-4 text-right border border-gray-200 dark:border-gray-600 font-bold text-gray-900 dark:text-white">
+                                                    <i class="bi bi-box ml-2"></i>
+                                                    المنتج
+                                                </th>
+                                                <th class="p-4 text-right border border-gray-200 dark:border-gray-600 font-bold text-gray-900 dark:text-white">
+                                                    <i class="bi bi-currency-dollar ml-2"></i>
+                                                    السعر
+                                                </th>
+                                                <th class="p-4 text-right border border-gray-200 dark:border-gray-600 font-bold text-gray-900 dark:text-white">
+                                                    <i class="bi bi-123 ml-2"></i>
+                                                    الكمية
+                                                </th>
+                                                <th class="p-4 text-right border border-gray-200 dark:border-gray-600 font-bold text-gray-900 dark:text-white">
+                                                    <i class="bi bi-calculator ml-2"></i>
+                                                    الإجمالي
+                                                </th>
+                                                <th class="p-4 text-center border border-gray-200 dark:border-gray-600 font-bold text-gray-900 dark:text-white">
+                                                    <i class="bi bi-gear ml-2"></i>
+                                                    إجراء
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="productsTable">
+                                            <!-- Products will be added here -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <div class="mt-4">
-                                <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl text-center">
-                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">الإجمالي الكلي</div>
-                                    <div id="totalAmount" class="text-4xl font-bold text-blue-600 dark:text-blue-400">0.00 ج.م</div>
+                            
+
+                            <!-- Total Section -->
+                            <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl shadow-lg p-6 mt-6 border border-blue-200 dark:border-gray-600">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+                                            <i class="bi bi-calculator text-blue-700 text-xl"></i>
+                                        </div>
+                                        إجمالي الفاتورة
+                                    </h3>
+                                    <div class="text-3xl font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2">
+                                        <span id="totalAmount">0.00 ج.م</span>
+                                        <i class="bi bi-currency-dollar text-2xl"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
                     <!-- Payment Section -->
                     <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-blue-200 dark:border-gray-500">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="paid_amount" class="block text-gray-700 dark:text-gray-300 font-semibold  items-center gap-2">
+                                <label for="paid_amount" class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
                                     <i class="bi bi-cash text-blue-600"></i>
                                     المبلغ المدفوع
                                 </label>
@@ -235,8 +304,9 @@
                                 </div>
                             </div>
                             
+
                             <div class="space-y-2">
-                                <label for="states" class="block text-gray-700 dark:text-gray-300 font-semibold  items-center gap-2">
+                                <label for="states" class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
                                     <i class="bi bi-check-circle text-blue-600"></i>
                                     حالة الدفع
                                 </label>
@@ -248,15 +318,16 @@
                                         <option value="paid">مدفوع بالكامل</option>
                                         <option value="partial">مدفوع جزئي</option>
                                         <option value="unpaid">غير مدفوع</option>
-                                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
-                                            <i class="bi bi-chevron-down"></i>
-                                        </div>
                                     </select>
+                                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
                                 </div>
                             </div>
                             
+
                             <div class="space-y-2">
-                                <label for="paymentMethod" class="block text-gray-700 dark:text-gray-300 font-semibold items-center gap-2">
+                                <label for="paymentMethod" class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
                                     <i class="bi bi-credit-card text-blue-600"></i>
                                     طريقة الدفع
                                 </label>
@@ -267,10 +338,10 @@
                                         required>
                                         <option value="cash">كاش</option>
                                         <option value="bank">تحويل بنكي</option>
-                                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
-                                            <i class="bi bi-chevron-down"></i>
-                                        </div>
                                     </select>
+                                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -284,20 +355,17 @@
                         </div>
                         <div class="flex gap-3">
                             <button 
-                                type="button" 
-                                id="addItemBtnCreate"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center gap-2"
-                                onclick="addSingleItem()">
-                                <i class="bi bi-plus-lg"></i>
-                                <span>إضافة منتج</span>
-                            </button>
-                            <button 
                                 type="submit" 
                                 class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2">
                                 <i class="bi bi-check-lg"></i>
-                                إنشاء الفاتورة
+                                <span>إنشاء الفاتورة</span>
                             </button>
                         </div>
+                    </div>
+                    
+                    <!-- Hidden input for storing products data -->
+                    <div id="productsInputs">
+                        <!-- Products will be added here as hidden inputs -->
                     </div>
                 </form>
             </div>
@@ -310,5 +378,5 @@
         window.products = @json($products);
         window.customerType = '{{ $customer->price_type }}';
     </script>
-    <script src="{{ asset('js/customer-invoice.js') }}"></script>
+    <script src="{{ asset('js/customer-invoice-new.js') }}"></script>
 </x-app-layout>

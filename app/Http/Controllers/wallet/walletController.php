@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\wallet;
 use App\Models\CashBox;
+use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerTransaction;
@@ -19,11 +20,9 @@ class walletController extends Controller
         ]);
 
         $amount = $request->balance;
-
+        $customer = Customer::findOrFail($customerId);
         DB::beginTransaction();
-
         try {
-
             // Wallet
             $wallet = CustomerWallet::where('customer_id', $customerId)
                 ->lockForUpdate()
@@ -39,10 +38,13 @@ class walletController extends Controller
             $tx = new CustomerTransaction();
             $tx->customer_id = $customerId;
             $tx->amount = $amount;
+            $tx->description = "إيداع رصيد للمحفظة";
+            $tx->transaction_date = now();
+            $tx->reference_type = 'wallet_deposit';
+            $tx->reference_id = $wallet->id;
+            $tx->method = 'cash';
             $tx->type = 'deposit';
             $tx->save();
-            // dd((new CustomerTransaction)->getFillable());
-
             // إضافة الرصيد للمحفظة
             $wallet->balance += $amount;
             $wallet->save();
@@ -55,7 +57,7 @@ class walletController extends Controller
                 $cashBox->transactions()->create([
                     'amount' => $amount,
                     'type' => 'in',
-                    'description' => "إيداع من العميل رقم $customerId",
+                    'description' => "إيداع من العميل  $customer->name",
                     'reference_id' => $tx->id,
                     'reference_type' => 'customer_transaction',
                     'user_id' => auth()->id()

@@ -82,29 +82,92 @@
             </div>
 
             <!-- Search Section -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-6">
-                <form action="{{ route('customerAccountStatement.transactionIndex', $customer->id) }}" method="GET" class="flex flex-col md:flex-row gap-4">
-                    <div class="relative flex-1">
-                        <i class="bi bi-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input 
-                            type="text" 
-                            name="search" 
-                            value="{{ request('search') }}" 
-                            placeholder="ابحث عن معاملة بالوصف أو المبلغ..." 
-                            class="w-full pr-12 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-all">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-6 border border-gray-100 dark:border-gray-700">
+                <form action="{{ route('customerAccountStatement.transactionIndex', $customer->id) }}" method="GET" class="space-y-6">
+                    <!-- Search Input Row -->
+                    <div class="flex flex-col lg:flex-row gap-4">
+                        <div class="flex-1">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                                    <i class="bi bi-search text-purple-600 dark:text-purple-400 text-sm"></i>
+                                </div>
+                                <span>بحث عن معاملة</span>
+                            </label>
+                            <div class="relative">
+                                <i class="bi bi-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
+                                <input 
+                                    type="text" 
+                                    name="search" 
+                                    value="{{ request('search') }}" 
+                                    placeholder="ابحث بالوصف أو المبلغ أو النوع..." 
+                                    class="w-full pr-12 pl-4 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all text-lg shadow-sm hover:shadow-md">
+                            </div>
+                        </div>
+                        
+                        <!-- Filter Dropdown -->
+                        <div class="lg:w-64">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                    <i class="bi bi-funnel text-blue-600 dark:text-blue-400 text-sm"></i>
+                                </div>
+                                <span>فلترة حسب النوع</span>
+                            </label>
+                            <select name="filter" class="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all text-lg shadow-sm hover:shadow-md">
+                                <option value="">📋 جميع المعاملات</option>
+                                <option value="sale" {{ request('filter') == 'sale' ? 'selected' : '' }}>💰 المبيعات فقط</option>
+                                <option value="return" {{ request('filter') == 'return' ? 'selected' : '' }}>↩️ المرتجعات فقط</option>
+                                <option value="payment" {{ request('filter') == 'payment' ? 'selected' : '' }}>💸 المدفوعات فقط</option>
+                            </select>
+                        </div>
                     </div>
-                    <select name="filter" class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white">
-                        <option value="">جميع المعاملات</option>
-                        <option value="sale" {{ request('filter') == 'sale' ? 'selected' : '' }}>المبيعات فقط</option>
-                        <option value="return" {{ request('filter') == 'return' ? 'selected' : '' }}>المرتجعات فقط</option>
-                        <option value="payment" {{ request('filter') == 'payment' ? 'selected' : '' }}>المدفوعات فقط</option>
-                    </select>
-                    <button 
-                        type="submit" 
-                        class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2">
-                        <i class="bi bi-search"></i>
-                        <span>بحث</span>
-                    </button>
+                    
+                    <!-- Date Range Row -->
+                    <div class="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-700">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                                <i class="bi bi-calendar-range text-green-600 dark:text-green-400 text-sm"></i>
+                            </div>
+                            <span>نطاق التاريخ 🔍</span>
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="relative">
+                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 ml-8">
+                                    📅 من تاريخ
+                                </label>
+                                <div class="relative">
+                                    <i class="bi bi-calendar-event absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input 
+                                        type="date" 
+                                        name="search_from_date" 
+                                        value="{{ request('search_from_date') }}" 
+                                        class="w-full pr-10 pl-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all shadow-sm hover:shadow-md">
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 ml-8">
+                                    📅 إلى تاريخ
+                                </label>
+                                <div class="relative">
+                                    <i class="bi bi-calendar-event absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input 
+                                        type="date" 
+                                        name="search_to_date" 
+                                        value="{{ request('search_to_date') }}" 
+                                        class="w-full pr-10 pl-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all shadow-sm hover:shadow-md">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Button -->
+                    <div class="flex justify-center">
+                        <button 
+                            type="submit" 
+                            class="px-8 py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white font-bold rounded-xl hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 text-lg">
+                            <i class="bi bi-search text-xl"></i>
+                            <span> بحث متقدم</span>
+                        </button>
+                    </div>
                 </form>
             </div>
 
@@ -133,9 +196,9 @@
                                 <tr class="hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">
                                     <td class="p-4 text-gray-600 dark:text-gray-400">
                                         @if($transaction->transaction_date)
-                                            {{ \Carbon\Carbon::parse($transaction->transaction_date)->format('Y-m-d H:i') }}
+                                            {{ \Carbon\Carbon::parse($transaction->transaction_date)->format('Y-m-d') }}
                                         @else
-                                            {{ \Carbon\Carbon::parse($transaction->created_at)->format('Y-m-d H:i') }}
+                                            {{ \Carbon\Carbon::parse($transaction->created_at)->format('Y-m-d') }}
                                         @endif
                                     </td>
                                     <td class="p-4">
@@ -143,10 +206,14 @@
                                             @if($transaction->type == 'sale') bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400
                                             @elseif($transaction->type == 'return') bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400
                                             @elseif($transaction->type == 'payment') bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400
+                                            @elseif($transaction->type == 'deposit') bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400
+                                            @elseif($transaction->type == 'adjustment') bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400
                                             @else bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-400 @endif">
                                             @if($transaction->type == 'sale') بيع
                                             @elseif($transaction->type == 'return') مرتجع
                                             @elseif($transaction->type == 'payment') دفعة
+                                            @elseif($transaction->type =='deposit') إيداع
+                                            @elseif($transaction->type == 'adjustment') تعديل
                                             @else تعديل @endif
                                         </span>
                                     </td>
@@ -192,6 +259,13 @@
                             @endforelse
                         </tbody>
                     </table>
+                    
+                    <!-- Pagination -->
+                    @if($transactions->hasPages())
+                        <div class="mt-6 flex justify-center">
+                            {{ $transactions->links() }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
