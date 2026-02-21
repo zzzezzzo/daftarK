@@ -8,7 +8,7 @@ use App\Http\Controllers\customer\CustomerInvoiceController;
 use App\Http\Controllers\customer\CustomerTransactionController;
 use App\Http\Controllers\customer\customerController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\productController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\supplier\accountStatement;
 use App\Http\Controllers\supplier\SupplierInvoiceController;
@@ -26,12 +26,12 @@ Route::get('/', function () {
 Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
     // product routes
-    Route::get('/products',[productController::class, 'index'])->name('products.index');
-    Route::get('/products/create',[productController::class, 'create'])->name('products.create');
-    Route::post('/products/create',[productController::class, 'store'])->name('products.store');
-    Route::get('/products/{id}/edit',[productController::class, 'edit'])->name('products.edit');
-    Route::put('/products/{id}',[productController::class, 'update'])->name('products.update');
-    Route::delete('/products/{id}',[productController::class, 'destroy'])->name('products.destroy');
+    Route::get('/products',[ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/create',[ProductController::class, 'create'])->name('products.create');
+    Route::post('/products/create',[ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{id}/edit',[ProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{id}',[ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{id}',[ProductController::class, 'destroy'])->name('products.destroy');
     // create category
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     // categories index

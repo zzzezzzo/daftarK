@@ -9,7 +9,7 @@ use App\Models\product;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 
-class productController extends Controller
+class ProductController extends Controller
 {
     public function index(Request $request)
     {
