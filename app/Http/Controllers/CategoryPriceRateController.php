@@ -25,6 +25,7 @@ class CategoryPriceRateController extends Controller
      */
     public function store(Request $request, $categoryId)
     {
+        // dd($request->all());
         $request->validate([
             'rate_trade' => 'required|numeric|min:0|max:999.99',
             'rate_technician' => 'required|numeric|min:0|max:999.99',
@@ -42,7 +43,17 @@ class CategoryPriceRateController extends Controller
                 'rate_client' => $request->rate_client,
             ]
         );
-        Alert::success('نجاح', 'تم اضافة النسب بنجاح');
+        // when update the price rate the product that belong to this category will be update with the new price rate
+        $products = $category->products;
+        foreach ($products as $product) {
+            // dd($product->price_base);
+            $product->update([
+                'price_trade' => $product->price_base * (1 + $request->rate_trade / 100),
+                'price_technician' => $product->price_base * (1 + $request->rate_technician / 100),
+                'price_customer' => $product->price_base * (1 + $request->rate_client / 100),
+            ]);
+        }
+        Alert::success('نجاح', '  تم اضافة النسب بنجاح وتم تحديث أسعار المنتجات التابعة لهذه الفئة');
         return redirect()
             ->route('categories.index', $categoryId)
             ->with('success', 'تم تحديث أسعار الفئة بنجاح');

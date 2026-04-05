@@ -1,6 +1,7 @@
 let selectedProduct = null;
 let invoiceProducts = [];
 
+
 /* ===========================
    البحث عن المنتج
 =========================== */
@@ -15,6 +16,7 @@ document.getElementById("productSearch").addEventListener("input", function () {
     }
 
     const filtered = window.products.filter(p =>
+        p.code.toLowerCase().includes(query) ||
         p.name.toLowerCase().includes(query)
     );
 
@@ -54,6 +56,8 @@ function selectProduct(product) {
 =========================== */
 function addProductToInvoice() {
     const qty = parseInt(document.getElementById("productQty").value);
+    console.log(qty);
+    const price = parseFloat(document.getElementById("productPrice").value);
 
     if (!selectedProduct) {
         showNotification("يرجى اختيار منتج أولاً", "error");
@@ -64,19 +68,17 @@ function addProductToInvoice() {
         showNotification("يرجى إدخال كمية صحيحة", "error");
         return;
     }
-
     const existingProduct = invoiceProducts.find(p => p.id === selectedProduct.id);
-
     if (existingProduct) {
         existingProduct.quantity += qty;
-        existingProduct.total = existingProduct.price * existingProduct.quantity;
+        existingProduct.total = price * existingProduct.quantity;
     } else {
         invoiceProducts.push({
             id: selectedProduct.id,
             name: selectedProduct.name,
-            price: selectedProduct.price_base,
+            price: price,
             quantity: qty,
-            total: selectedProduct.price_base * qty
+            total: price * qty
         });
     }
 
@@ -118,8 +120,8 @@ function renderProducts() {
 
         table.innerHTML += `
             <tr>
-                <td class="p-2">${item.name}</td>
-                <td class="p-2">${item.price}</td>
+                <td class="p-2 text-gray-50">${item.name}</td>
+                <td class="p-2 text-gray-50">${item.price}</td>
                 <td class="p-2">${item.quantity}</td>
                 <td class="p-2">${item.total.toFixed(2)}</td>
                 <td class="p-2">

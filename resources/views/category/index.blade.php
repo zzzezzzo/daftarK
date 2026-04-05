@@ -186,7 +186,12 @@
                 </div>
                 
                 <!-- Pagination -->
-                            </div>
+                @if($categories->hasPages())
+                    <div class="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                        {{ $categories->links() }}
+                    </div>
+                @endif
+                </div>
         </div>
     </div>
 

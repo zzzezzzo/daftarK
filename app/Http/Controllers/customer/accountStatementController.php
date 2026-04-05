@@ -162,9 +162,10 @@ class accountStatementController extends Controller
         $invoice = null;
         DB::transaction(function() use ($request, $customer, &$invoice) {
             // 1. حساب إجمالي الفاتورة
+            // dd($request->products);
             $total = collect($request->products)->sum(function($item) use ($customer) {
                 $product = Product::with(['category', 'category.priceRate'])->findOrFail($item['product_id']);
-                $unitPrice = $product->getPriceForCustomerType($customer->price_type);
+                $unitPrice = $item['price'];
                 return $item['quantity'] * $unitPrice;
             });
 
@@ -179,9 +180,7 @@ class accountStatementController extends Controller
                     $wallet->decrement('balance', $walletPayment);
                 }
             }
-
             $totalPaid = $cashPayment + $walletPayment;
-
             // 3. التحقق حسب نوع العميل
             if ($customer->type === 'walkin') {
                 if($request->type === 'return' ){
@@ -239,12 +238,11 @@ class accountStatementController extends Controller
                 'state' => $state,
                 'type' => $request->type,
             ]);
-
+            
             // 6. تسجيل المنتجات وتحديث المخزون
             foreach ($request->products as $item) {
                 $product = Product::findOrFail($item['product_id']);
-                $unitPrice = $product->getPriceForCustomerType($customer->price_type);
-
+                $unitPrice = $item['price'];
                 CustomerInvoiceItems::create([
                     'customer_invoice_id' => $invoice->id,
                     'product_id' => $item['product_id'],
@@ -258,7 +256,6 @@ class accountStatementController extends Controller
                     $product->increment('stock', $item['quantity']);
                 }
             }
-
             // 7. التعامل مع الخزنة
             if ($cashPayment > 0) {
                 $cashBox = CashBox::where('status', 'active')

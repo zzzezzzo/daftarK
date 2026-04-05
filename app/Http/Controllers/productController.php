@@ -21,7 +21,7 @@ class ProductController extends Controller
                 ->orwhere('code', 'like', "%$search%");
             });
         }
-        $products =$products->latest()->paginate(5)->withQueryString();
+        $products =$products->latest()->paginate(10)->withQueryString();
         $outofstockProduct = Product::where('stock', 0)->get();
         return view('product.index', compact('products', 'outofstockProduct'));
     }
@@ -66,16 +66,23 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $validatedData = $request->validated();
+        $basePrice = $request->input('price_base', $product->price_base);
+        $categoryId = $request->input('category_id', $product->category_id);
         
-        // Calculate trade and technical prices based on category rates if not provided
-        if (!isset($validatedData['price_trade']) || $validatedData['price_trade'] === null) {
-            $category = Category::find($validatedData['category_id']);
-            if ($category && $category->priceRate) {
-                $basePrice = $validatedData['price_base'] ?? $product->price_base;
-                $validatedData['price_trade'] = $basePrice + $basePrice * ($category->priceRate->rate_trade / 100);
-                $validatedData['price_technician'] = $basePrice + $basePrice * ($category->priceRate->rate_technician / 100);
-                $validatedData['price_customer'] = $basePrice + $basePrice * ($category->priceRate->rate_customer / 100);
-            }
+        $category = Category::with('priceRate')->find($categoryId);
+        if (
+            $validatedData['price_trade'] <= $basePrice || 
+            $validatedData['price_technician'] <= $basePrice || 
+            $validatedData['price_customer'] <= $basePrice
+        ) {
+            Alert::error('فشل', 'لا يمكن أن يكون سعر البيع أقل من أو يساوي سعر الشراء');
+            return redirect()->back()->withInput(); 
+        }
+        if ($category && $category->priceRate) {
+            $rate = $category->priceRate;
+            $validatedData['price_trade'] =$request->price_trade ?? $basePrice + ($basePrice * ($rate->rate_trade / 100)) ;
+            $validatedData['price_technician'] = $request->price_technician ?? $basePrice + ($basePrice * ($rate->rate_technician / 100));
+            $validatedData['price_customer'] = $basePrice + ($basePrice * ($rate->rate_client / 100));
         }
         
         $product->update($validatedData);

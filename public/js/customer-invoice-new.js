@@ -3,15 +3,10 @@ let selectedProduct = null;
 let invoiceProducts = [];
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded');
-    console.log('Customer type:', window.customerType);
-    console.log('Products:', window.products);
-    
+document.addEventListener('DOMContentLoaded', function() {    
     // Check if elements exist
     const productSearch = document.getElementById('productSearch');
     const suggestionsBox = document.getElementById('suggestionsBox');
-    
     if (!productSearch) {
         console.error('productSearch element not found');
         return;
@@ -53,9 +48,9 @@ document.getElementById('productSearch').addEventListener('input', function () {
         const stockText = product.stock > 0 ? `المتوفر: ${product.stock}` : `غير متوفر`;
         
         const div = document.createElement('div');
-        div.className = "p-3 hover:bg-gray-100 cursor-pointer border-b transition-colors";
+        div.className = "p-3 cursor-pointer border-b transition-colors";
         div.innerHTML = `
-            <div class="font-semibold text-gray-800">${product.name}</div>
+            <div class="font-semibold text-gray-100">${product.name}</div>
             <div class="flex justify-between items-center mt-1">
                 <div class="text-green-600 text-sm font-medium">
                     السعر: ${price} ج.م
@@ -69,7 +64,8 @@ document.getElementById('productSearch').addEventListener('input', function () {
         div.onclick = function () {
             selectedProduct = product;
             document.getElementById('productSearch').value = product.name;
-            document.getElementById('productPrice').value = price;
+            const priceInput = document.getElementById('productPrice');
+            priceInput.value = price;
             box.classList.add('hidden');
         };
         
@@ -82,6 +78,7 @@ document.getElementById('productSearch').addEventListener('input', function () {
 // إضافة المنتج للقائمة
 function addProductToInvoice() {
     const qty = parseInt(document.getElementById('productQty').value);
+    const priceInputUpdate = document.getElementById('productPrice').value;   
     
     if (!selectedProduct) {
         showNotification("اختر منتج أولاً", "error");
@@ -94,7 +91,7 @@ function addProductToInvoice() {
         return;
     }
     
-    const price = getPriceByCustomerType(selectedProduct);
+    const price = priceInputUpdate ? parseFloat(priceInputUpdate) : getPriceByCustomerType(selectedProduct);
     const total = price * qty;
     
     invoiceProducts.push({
@@ -179,6 +176,7 @@ function renderProducts() {
         productsInputs.innerHTML += `
             <input type="hidden" name="products[${index}][product_id]" value="${item.id}">
             <input type="hidden" name="products[${index}][quantity]" value="${item.quantity}">
+            <input type="hidden" name="products[${index}][price]" value="${item.price}">
         `;
     });
     

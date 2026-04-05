@@ -175,6 +175,7 @@ class accountStatement extends Controller
         $supplier = Supplier::findOrFail($id);
         DB::beginTransaction();
         try {
+            // dd($request->all());
             // 1. حساب إجمالي الأصناف (دائماً رقم موجب)
             $total = 0;
             foreach ($request->products as $item) {
@@ -185,9 +186,7 @@ class accountStatement extends Controller
             $newNum = $lastInvoice ? intval(preg_replace('/[^0-9]/', '', $lastInvoice->invoice_number)) + 1 : 1;
             $prefix = ($request->type == 'purchase') ? 'INV' : 'RET';
             $invoiceNumber = $prefix . str_pad($newNum, 8, '0', STR_PAD_LEFT);
-
             $paid = $request->paid_amount ?? 0;
-            
             // 3. حساب المتبقي (دائماً موجب)
             // المتبقي هنا هو "الفرق" الذي لم يُسوّى بعد في هذه الفاتورة تحديداً
             $remaining = $request->type == 'purchase' ? $total - $paid : 0;
@@ -206,19 +205,27 @@ class accountStatement extends Controller
                 'invoice_number'   => $invoiceNumber,
                 'states'           => $states
             ]);
-
             // 5. معالجة المنتجات والمخزون
             foreach ($request->products as $item) {
                 $product = Product::findOrFail($item['product_id']);
+
                 SupplierInvoiceItems::create([
                     'supplier_invoice_id' => $invoice->id,
                     'product_id'          => $product->id,
                     'quantity'            => $item['quantity'],
                     'unit_price'          => $item['unit_price'],
                 ]);
-
                 if ($request->type == 'purchase') {
                     $product->increment('stock', $item['quantity'], ['price_base' => $item['unit_price']]);
+                    // get the three last price rate and update when to update the price base 
+                    $rate = CategoryPriceRate::where('category_id', $product->category_id)->first();
+                    // update the prices
+                    $product->update([
+                        'price_trade' => $item['unit_price'] * (1 + ($rate->rate_trade / 100)),
+                        'price_technician' => $item['unit_price']* (1 + ($rate->rate_technician /100)),
+                        'price_customer' => $item['unit_price']* (1 + ($rate->rate_customer /100))
+                    ]);
+                    
                 } else {
                     $product->decrement('stock', $item['quantity']);
                 }
@@ -226,7 +233,6 @@ class accountStatement extends Controller
 
             // 6. المنطق المحاسبي للمورد (SupplierTransaction)
             if ($request->type == 'return') {
-                
                 // تسجيل المرتجع كـ "إيداع" في حسابك (تقليل المديونية)
                 SupplierTransaction::create([
                     'supplier_id'      => $supplier->id,
@@ -253,7 +259,6 @@ class accountStatement extends Controller
                     'reference_id'     => $invoice->id,
                     'reference_type'   => 'invoice'
                 ]);
-
                 if ($paid > 0) {
                     $this->createSupplierCashBoxTransaction($paid, $invoice, $supplier, $request);
                 }
@@ -279,7 +284,11 @@ class accountStatement extends Controller
         $cashBox = CashBox::where('status', 'active')
             ->where('user_id', auth()->id())
             ->first();
-
+        if($cashBox->current_balance < $amount){
+            throw new \Exception('رصيد الصندوق النقدي غير كافي. الرصيد الحالي: ' . number_format($cashBox->current_balance, 2));
+            Alert::error('فشل', 'رصيد الصندوق النقدي غير كافي. الرصيد الحالي: ' . number_format($cashBox->current_balance, 2));
+            return redirect()->back();
+        }
         if (!$cashBox) {
             // Create default cash box if none exists
             $cashBox = CashBox::create([
@@ -293,12 +302,10 @@ class accountStatement extends Controller
                 'user_id' => auth()->id()
             ]);
         }
-
         // Create transaction in cash box
         $description = $invoice 
             ? "دفعة للمورد {$supplier->name} فاتورة {$invoice->invoice_number}"
             : "دفعة للمورد {$supplier->name}";
-            
         CashBoxTransaction::create([
             'cash_box_id' => $cashBox->id,
             'type' => 'out',

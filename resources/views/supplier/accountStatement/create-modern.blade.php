@@ -197,7 +197,6 @@
                                         <input type="text"
                                                id="productPrice"
                                                class="w-full p-4 pr-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold"
-                                               readonly
                                                placeholder="0.00">
                                         <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                                             <i class="bi bi-currency-dollar"></i>
@@ -374,7 +373,7 @@
 
     <script>
         // Pass PHP variables to JavaScript
-        window.products = @json($products);
+        window.products = @json($products);        
     </script>
     <script src="{{ asset('js/supplier-invoice-new.js') }}"></script>
 </x-app-layout>

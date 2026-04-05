@@ -14,7 +14,7 @@
                                 <p class="text-green-100 text-sm">إدارة نسب التسعير للفئات المختلفة</p>
                             </div>
                         </div>
-                        <a href="" 
+                        <a href="{{ route('categories.index') }}" 
                            class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
                             <i class="bi bi-arrow-left"></i>
                             <span>رجوع</span>
@@ -137,6 +137,11 @@
                             @endforeach
                         </tbody>
                     </table>
+                    @if($categories->hasPages())
+                        <div class="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                            {{ $categories->links() }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
