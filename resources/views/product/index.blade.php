@@ -14,11 +14,20 @@
                                 <p class="text-blue-100 text-sm">إدارة المنتجات والأسعار</p>
                             </div>
                         </div>
-                        <a href="{{ route('products.create') }}" 
-                           class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
-                            <i class="bi bi-plus-lg"></i>
-                            <span>منتج جديد</span>
-                        </a>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('products.labels.print') }}"
+                               target="_blank"
+                               rel="noopener"
+                               class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
+                                <i class="bi bi-printer"></i>
+                                <span>طباعة باركود الكل</span>
+                            </a>
+                            <a href="{{ route('products.create') }}" 
+                               class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
+                                <i class="bi bi-plus-lg"></i>
+                                <span>منتج جديد</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -200,6 +209,13 @@
                                 </td>
                                 <td class="p-4">
                                     <div class="flex items-center justify-center gap-2">
+                                        <a href="{{ route('products.label.print', $product) }}"
+                                           target="_blank"
+                                           rel="noopener"
+                                           class="p-2 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-800/30 transition-colors"
+                                           title="باركود">
+                                            <i class="bi bi-upc-scan"></i>
+                                        </a>
                                         <a href="{{ route('products.edit', $product->id) }}" 
                                            class="p-2 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800/30 transition-colors"
                                            title="تعديل">

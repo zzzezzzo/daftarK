@@ -28,7 +28,8 @@ document.getElementById('productSearch').addEventListener('input', function () {
     }
     
     const filtered = window.products.filter(p =>
-        p.name.toLowerCase().includes(query)
+        p.name.toLowerCase().includes(query)||
+        p.code.toLowerCase().includes(query)
     );
     
     box.innerHTML = '';
@@ -148,9 +149,9 @@ function renderProducts() {
         const stockText = isOverStock ? `تجاوز المخزون (${item.stock})` : `متوفر (${item.stock})`;
         
         table.innerHTML += `
-            <tr class="border-t hover:bg-gray-50 transition-colors ${isOverStock ? 'bg-red-50' : ''}">
+            <tr class="border-t hover:bg-gray-700 transition-colors ${isOverStock ? 'bg-red-50' : ''}">
                 <td class="p-3">
-                    <div class="font-medium text-gray-800">${item.name}</div>
+                    <div class="font-medium text-white">${item.name}</div>
                     ${isOverStock ? '<div class="text-xs text-red-600 mt-1"><i class="bi bi-exclamation-triangle"></i> تجاوز المخزون</div>' : ''}
                 </td>
                 <td class="p-3">

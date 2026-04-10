@@ -96,4 +96,28 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'تم حذف المنتج بنجاح.');
     }
+
+    /**
+     * Printable sheet: barcode labels for every product (batch print).
+     */
+    public function printAllLabels()
+    {
+        $products = Product::query()->orderBy('name')->get();
+
+        return view('product.labels-print', [
+            'products' => $products,
+            'pageTitle' => 'باركود جميع المنتجات',
+        ]);
+    }
+
+    /**
+     * Printable sheet: a single product label.
+     */
+    public function printOneLabel(Product $product)
+    {
+        return view('product.labels-print', [
+            'products' => collect([$product]),
+            'pageTitle' => 'باركود — ' . $product->name,
+        ]);
+    }
 }
