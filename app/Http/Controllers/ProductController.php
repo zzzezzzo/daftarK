@@ -120,4 +120,11 @@ class ProductController extends Controller
             'pageTitle' => 'باركود — ' . $product->name,
         ]);
     }
+    public function printAllInStockLables(){
+        $products = Product::where('stock','>', 0)->orderBy('name')->get();
+        return view('product.labels-print', [
+            'products' => $products,
+            'pageTitle' => 'باركود المنتجات المتوفرة',
+        ]);
+    }
 }

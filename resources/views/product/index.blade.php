@@ -22,6 +22,13 @@
                                 <i class="bi bi-printer"></i>
                                 <span>طباعة باركود الكل</span>
                             </a>
+                            <a href="{{ route('products.inStock.labels.print') }}"
+                               target="_blank"
+                               rel="noopener"
+                               class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
+                                <i class="bi bi-printer"></i>
+                                <span>طباعة باركود للمنتجات المتاحة </span>
+                            </a>
                             <a href="{{ route('products.create') }}" 
                                class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
                                 <i class="bi bi-plus-lg"></i>

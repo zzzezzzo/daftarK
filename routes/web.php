@@ -29,6 +29,7 @@ Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::get('/products',[ProductController::class, 'index'])->name('products.index');
     Route::get('/products/labels/print', [ProductController::class, 'printAllLabels'])->name('products.labels.print');
     Route::get('/products/{product}/label/print', [ProductController::class, 'printOneLabel'])->name('products.label.print');
+    Route::get('/products/in-stock/labels/print', [ProductController::class, 'printAllInStockLables'])->name('products.inStock.labels.print');
     Route::get('/products/create',[ProductController::class, 'create'])->name('products.create');
     Route::post('/products/create',[ProductController::class, 'store'])->name('products.store');
     Route::get('/products/{id}/edit',[ProductController::class, 'edit'])->name('products.edit');
