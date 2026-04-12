@@ -40,14 +40,18 @@
             </div>
 
             <!-- Out of Stock Alert -->
-            @if ($outofstockProduct->count() > 0)
-            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-6 py-4 rounded-xl mb-6 flex items-start gap-3">
+           @if ($outofstockProduct->count() > 0)
+            <div class="bg-red-50 h-[250px] dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-6 py-4 rounded-xl mb-6 flex items-start gap-3">
+                
                 <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <i class="bi bi-exclamation-triangle text-white text-sm"></i>
                 </div>
-                <div>
+
+                <div class="flex-1 overflow-hidden">
                     <p class="font-semibold mb-2">منتجات غير متوفرة في المخزن:</p>
-                    <div class="space-y-1">
+
+                    <!-- الجزء اللي هيعمل scroll -->
+                    <div class="space-y-1 overflow-y-auto max-h-[180px] pr-2">
                         @foreach($outofstockProduct as $product)
                             <li class="flex items-start gap-2">
                                 <i class="bi bi-dot text-red-500"></i>
@@ -56,6 +60,7 @@
                         @endforeach
                     </div>
                 </div>
+
             </div>
             @endif
 
