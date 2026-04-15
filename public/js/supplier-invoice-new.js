@@ -120,10 +120,10 @@ function renderProducts() {
 
         table.innerHTML += `
             <tr>
-                <td class="p-2 text-gray-50">${item.name}</td>
-                <td class="p-2 text-gray-50">${item.price}</td>
-                <td class="p-2">${item.quantity}</td>
-                <td class="p-2">${item.total.toFixed(2)}</td>
+                <td class="p-2 text-white">${item.name}</td>
+                <td class="p-2 text-white">${item.price}</td>
+                <td class="p-2 text-white">${item.quantity}</td>
+                <td class="p-2 text-white">${item.total.toFixed(2)}</td>
                 <td class="p-2">
                     <button onclick="removeProduct(${index})"
                         class="bg-red-500 text-white px-2 rounded">

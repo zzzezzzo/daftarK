@@ -223,9 +223,8 @@ class accountStatement extends Controller
                     $product->update([
                         'price_trade' => $item['unit_price'] * (1 + ($rate->rate_trade / 100)),
                         'price_technician' => $item['unit_price']* (1 + ($rate->rate_technician /100)),
-                        'price_customer' => $item['unit_price']* (1 + ($rate->rate_customer /100))
+                        'price_customer' => $item['unit_price'] * (1 + ($rate->rate_client /100))
                     ]);
-                    
                 } else {
                     $product->decrement('stock', $item['quantity']);
                 }
