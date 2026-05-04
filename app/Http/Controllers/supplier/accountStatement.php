@@ -532,6 +532,7 @@ class accountStatement extends Controller
      */
     public function destroy($supplierId, $invoiceId)
     {
+        // dd($supplierId, $invoiceId);
         $supplier = Supplier::findOrFail($supplierId);
         $invoice = SupplierInvoice::with('items')
             ->where('id', $invoiceId)
@@ -561,7 +562,7 @@ class accountStatement extends Controller
             SupplierInvoiceItems::where('supplier_invoice_id', $invoice->id)->delete();
             
             // Delete payment records if any
-            SupplierTransaction::where('supplier_invoice_id', $invoice->id)->delete();
+            SupplierTransaction::where('reference_id', $invoice->id)->delete();
             
             // Delete the invoice
             $invoice->delete();

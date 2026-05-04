@@ -28,10 +28,11 @@ document.getElementById("productSearch").addEventListener("input", function () {
         div.innerHTML = `
             <div class="flex justify-between items-center">
                 <div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">الكود: ${product.code}</div>
                     <div class="font-semibold text-gray-800 dark:text-white">${product.name}</div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">المتوفر: ${product.stock} | سعر الشراء: ${product.price_base}</div>
+                    <div class="text-lg font-bold text-green-600 dark:text-green-400">${product.price_base} ج.م</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-300">المتوفر: ${product.stock} </div>
                 </div>
-                <div class="text-lg font-bold text-green-600 dark:text-green-400">${product.price_base} ج.م</div>
             </div>
         `;
         div.onclick = () => selectProduct(product);
@@ -123,7 +124,7 @@ function renderProducts() {
                 <td class="p-2 text-white">${item.name}</td>
                 <td class="p-2 text-white">${item.price}</td>
                 <td class="p-2 text-white">${item.quantity}</td>
-                <td class="p-2 text-white">${item.total.toFixed(2)}</td>
+                // <td class="p-2 text-white">${item.total.toFixed(2)}</td>
                 <td class="p-2">
                     <button onclick="removeProduct(${index})"
                         class="bg-red-500 text-white px-2 rounded">

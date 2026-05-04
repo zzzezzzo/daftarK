@@ -51,6 +51,7 @@ document.getElementById('productSearch').addEventListener('input', function () {
         const div = document.createElement('div');
         div.className = "p-3 cursor-pointer border-b transition-colors";
         div.innerHTML = `
+            <div class="text-sm text-gray-500 dark:text-gray-400">الكود: ${product.code}</div>
             <div class="font-semibold text-white">${product.name}</div>
             <div class="flex justify-between items-center mt-1">
                 <div class="text-green-600 text-sm font-medium">

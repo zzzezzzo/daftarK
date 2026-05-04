@@ -53,7 +53,7 @@ class accountStatementController extends Controller
             }
         }
         
-        $invoices = $invoices->latest('date')->get();
+        $invoices = $invoices->latest('date')->paginate(20);
         $remaining_amount = $invoices->sum('remining_amount');
         return view('customer.accountStatement.index', compact('customer','invoices', 'remaining_amount'));
     }
@@ -120,7 +120,7 @@ class accountStatementController extends Controller
     
     public function create($id){
         $customer = Customer::findOrFail($id);
-        $products = Product::where('stock' ,'>', 0)->get();
+        $products = Product::where('stock' ,'>=', 0)->get();
         return view('customer.accountStatement.create', compact('customer', 'products'));
     }
 
@@ -158,180 +158,191 @@ class accountStatementController extends Controller
     }
     public function store(StoreCustomerInvoiceRequest $request, $id)
     {
+        // dd($request->all());
         $customer = Customer::findOrFail($id);
         $invoice = null;
-        DB::transaction(function() use ($request, $customer, &$invoice) {
-            // 1. حساب إجمالي الفاتورة
-            // dd($request->products);
-            $total = collect($request->products)->sum(function($item) use ($customer) {
-                $product = Product::with(['category', 'category.priceRate'])->findOrFail($item['product_id']);
-                $unitPrice = $item['price'];
-                return $item['quantity'] * $unitPrice;
-            });
-
-            $cashPayment = $request->paid_amount ?? 0;
-            $walletPayment = 0;
-
-            // 2. إدارة المحفظة للعميل الدائم
-            if ($customer->type === 'permanent' && $request->type === 'payment') {
-                $wallet = CustomerWallet::firstOrCreate(['customer_id' => $customer->id], ['balance' => 0]);
-                if ($wallet->balance > 0) {
-                    $walletPayment = min($wallet->balance, $total);
-                    $wallet->decrement('balance', $walletPayment);
+        try{
+            DB::transaction(function() use ($request, $customer, &$invoice) {
+                // 1. حساب إجمالي الفاتورة
+                $total = collect($request->products)->sum(function($item) use ($customer) {
+                    $product = Product::with(['category', 'category.priceRate'])->findOrFail($item['product_id']);
+                    $unitPrice = $item['price'];
+                    return $item['quantity'] * $unitPrice;
+                });
+    
+                $cashPayment = $request->paid_amount ?? 0;
+                $walletPayment = 0;
+    
+                // 2. إدارة المحفظة للعميل الدائم
+                if ($customer->type === 'permanent' && $request->type === 'payment') {
+                    $wallet = CustomerWallet::firstOrCreate(['customer_id' => $customer->id], ['balance' => 0]);
+                    if ($wallet->balance > 0) {
+                        $walletPayment = min($wallet->balance, $total);
+                        $wallet->decrement('balance', $walletPayment);
+                    }
                 }
-            }
-            $totalPaid = $cashPayment + $walletPayment;
-            // 3. التحقق حسب نوع العميل
-            if ($customer->type === 'walkin') {
-                if($request->type === 'return' ){
-                    $product = Product::findOrFail($request->products[0]['product_id']);
+                $totalPaid = $cashPayment + $walletPayment;
+                // 3. التحقق حسب نوع العميل
+                if ($customer->type === 'walkin') {
+                    if($request->type === 'return' ){
+                        $product = Product::findOrFail($request->products[0]['product_id']);
+                        $cashBox = CashBox::where('status', 'active')
+                            ->where('user_id', auth()->id())
+                            ->first();
+                        $product->increment('stock', $request->products[0]['quantity']);
+                        $invoice = CustomerInvoice::create([
+                            'invoice_number' => 'RET-' . str_pad(CustomerInvoice::where('type', 'return')->count() + 1, 5, '0', STR_PAD_LEFT),
+                            'customer_id' => $customer->id,
+                            'date' => $request->date,
+                            'total_amount' => $total,
+                            'paid_amount' => 0,
+                            'remining_amount' => 0,
+                            'state' => 'paid',
+                            'type' => 'return',
+                        ]);
+                        Alert::success('نجاح', 'تم إرجاع المنتجات بنجاح اسحب الرصيد من الخزنة');
+                        return redirect()->route('cashBoxes.show' , $cashBox->id);
+                    }
+                    if ($totalPaid != $total) {
+                        Alert::error('خطأ', 'لا يمكن إنشاء فاتورة غير مدفوعة أو بفائض لعميل عابر. يجب دفع كامل المبلغ.');
+                        return redirect()->back()->withInput();
+                    }
+                    $remaining = 0;
+                    
+                } else {
+                    // العميل الدائم
+                    if ($totalPaid > $total) {
+                        $excessAmount = $totalPaid - $total;
+                        $wallet = CustomerWallet::firstOrCreate(['customer_id' => $customer->id]);
+                        $wallet->increment('balance', $excessAmount);
+                        $totalPaid = $total; // ضبط الفاتورة
+                    }
+                    $remaining = $total - $totalPaid;
+                }
+    
+                $state = $totalPaid == 0 ? 'unpaid' : ($totalPaid >= $total ? 'paid' : 'partial');
+    
+                // 4. رقم الفاتورة
+                $prefix = $request->type === 'payment' ? 'INV-' : 'RET-';
+                $lastInvoice = CustomerInvoice::where('type', $request->type)->latest('id')->first();
+                $lastNum = $lastInvoice ? intval(str_replace($prefix, '', $lastInvoice->invoice_number)) : 0;
+                $invoiceNumber = $prefix . str_pad($lastNum + 1, 5, '0', STR_PAD_LEFT);
+                
+                // 5. إنشاء الفاتورة
+                $invoice = CustomerInvoice::create([
+                    'invoice_number' => $invoiceNumber,
+                    'customer_id' => $customer->id,
+                    'date' => $request->date,
+                    'total_amount' => $total,
+                    'paid_amount' => $totalPaid,
+                    'remining_amount' => $remaining,
+                    'state' => $state,
+                    'type' => $request->type,
+                    ]);
+                // 6. تسجيل المنتجات وتحديث المخزون
+                foreach ($request->products as $item) {
+                    $product = Product::findOrFail($item['product_id']);
+                    
+                    if($item['price'] < $product->getPriceForCustomerType($customer->price_type)){
+                        Alert::error('خطأ', "سعر المنتج {$product->name} لا يمكن أن يكون أقل من السعر الأساسي");
+                        throw new \Exception("سعر المنتج {$product->name} لا يمكن أن يكون أقل من السعر الأساسي");    
+                        
+                    }
+                    $unitPrice = $item['price'];
+                    CustomerInvoiceItems::create([
+                        'customer_invoice_id' => $invoice->id,
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $unitPrice,
+                    ]);
+    
+                    if ($request->type === 'payment') {
+                        $product->decrement('stock', $item['quantity']);
+                    } elseif ($request->type === 'return') {
+                        $product->increment('stock', $item['quantity']);
+                    }
+                }
+                    
+                // 7. التعامل مع الخزنة
+                if ($cashPayment > 0) {
                     $cashBox = CashBox::where('status', 'active')
                         ->where('user_id', auth()->id())
                         ->first();
-                    $product->increment('stock', $request->products[0]['quantity']);
-                    $invoice = CustomerInvoice::create([
-                        'invoice_number' => 'RET-' . str_pad(CustomerInvoice::where('type', 'return')->count() + 1, 5, '0', STR_PAD_LEFT),
+    
+                    if (!$cashBox) {
+                        $cashBox = CashBox::create([
+                            'name' => 'الصندوق الرئيسي',
+                            'description' => 'صندوق نقدي افتراضي',
+                            'opening_balance' => 0,
+                            'current_balance' => 0,
+                            'total_in' => 0,
+                            'total_out' => 0,
+                            'status' => 'active',
+                            'user_id' => auth()->id()
+                        ]);
+                    }
+    
+                    $cashBox->increment('current_balance', $cashPayment);
+                    $cashBox->increment('total_in', $cashPayment);
+                }
+    
+                // 8. تسجيل المعاملات النقدية والمحفظة
+                if ($walletPayment > 0 && $customer->type === 'permanent') {
+                    CustomerTransaction::create([
                         'customer_id' => $customer->id,
-                        'date' => $request->date,
-                        'total_amount' => $total,
+                        'type' => 'payment',
+                        'amount' => $walletPayment,
+                        'description' => 'دفع من المحفظة',
+                        'reference_id' => $invoice->id,
+                        'reference_type' => 'invoice',
+                    ]);
+                }
+    
+                if ($cashPayment > 0) {
+                    CustomerTransaction::create([
+                        'customer_id' => $customer->id,
+                        'type' => 'payment',
+                        'amount' => $cashPayment,
+                        'description' => $request->type === 'payment' ? 'دفعة نقدية' : 'إرجاع نقدي',
+                        'reference_id' => $invoice->id,
+                        'reference_type' => 'invoice',
+                    ]);
+                }
+    
+                // 9. إدارة المرتجعات للعميل الدائم
+                if ($request->type === 'return' && $customer->type === 'permanent') {
+                    $wallet = CustomerWallet::firstOrCreate(['customer_id' => $customer->id], ['balance' => 0]);
+                    $wallet->increment('balance', $total);
+    
+                    CustomerTransaction::create([
+                        'customer_id' => $customer->id,
+                        'amount' => $total,
+                        'type' => 'return',
+                        'transaction_date' => now(),
+                        'description' => "إرجاع منتجات فاتورة {$invoice->invoice_number}",
+                        'reference_id' => $invoice->id,
+                        'reference_type' => 'return_credit'
+                    ]);
+                    $invoice->update([
                         'paid_amount' => 0,
                         'remining_amount' => 0,
-                        'state' => 'paid',
-                        'type' => 'return',
+                        'state' => 'paid'
                     ]);
-                    Alert::success('نجاح', 'تم إرجاع المنتجات بنجاح اسحب الرصيد من الخزنة');
-                    return redirect()->route('cashBoxes.show' , $cashBox->id);
+                    Alert::success('نجاح', 'تم إرجاع المنتجات وإضافة الرصيد إلى المحفظة بنجاح');
                 }
-                if ($totalPaid != $total) {
-                    Alert::error('خطأ', 'لا يمكن إنشاء فاتورة غير مدفوعة أو بفائض لعميل عابر. يجب دفع كامل المبلغ.');
-                    return redirect()->back()->withInput();
-                }
-                $remaining = 0;
-                
-            } else {
-                // العميل الدائم
-                if ($totalPaid > $total) {
-                    $excessAmount = $totalPaid - $total;
-                    $wallet = CustomerWallet::firstOrCreate(['customer_id' => $customer->id]);
-                    $wallet->increment('balance', $excessAmount);
-                    $totalPaid = $total; // ضبط الفاتورة
-                }
-                $remaining = $total - $totalPaid;
+    
+            });
+            // create cash box transaction for cash payment
+            if ($request->paid_amount > 0 && $invoice) {
+                $this->createCashBoxTransaction($request->paid_amount, $invoice, $customer);
             }
-
-            $state = $totalPaid == 0 ? 'unpaid' : ($totalPaid >= $total ? 'paid' : 'partial');
-
-            // 4. رقم الفاتورة
-            $prefix = $request->type === 'payment' ? 'INV-' : 'RET-';
-            $lastInvoice = CustomerInvoice::where('type', $request->type)->latest('id')->first();
-            $lastNum = $lastInvoice ? intval(str_replace($prefix, '', $lastInvoice->invoice_number)) : 0;
-            $invoiceNumber = $prefix . str_pad($lastNum + 1, 5, '0', STR_PAD_LEFT);
-
-            // 5. إنشاء الفاتورة
-            $invoice = CustomerInvoice::create([
-                'invoice_number' => $invoiceNumber,
-                'customer_id' => $customer->id,
-                'date' => $request->date,
-                'total_amount' => $total,
-                'paid_amount' => $totalPaid,
-                'remining_amount' => $remaining,
-                'state' => $state,
-                'type' => $request->type,
-            ]);
-            
-            // 6. تسجيل المنتجات وتحديث المخزون
-            foreach ($request->products as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $unitPrice = $item['price'];
-                CustomerInvoiceItems::create([
-                    'customer_invoice_id' => $invoice->id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $unitPrice,
-                ]);
-
-                if ($request->type === 'payment') {
-                    $product->decrement('stock', $item['quantity']);
-                } elseif ($request->type === 'return') {
-                    $product->increment('stock', $item['quantity']);
-                }
-            }
-            // 7. التعامل مع الخزنة
-            if ($cashPayment > 0) {
-                $cashBox = CashBox::where('status', 'active')
-                    ->where('user_id', auth()->id())
-                    ->first();
-
-                if (!$cashBox) {
-                    $cashBox = CashBox::create([
-                        'name' => 'الصندوق الرئيسي',
-                        'description' => 'صندوق نقدي افتراضي',
-                        'opening_balance' => 0,
-                        'current_balance' => 0,
-                        'total_in' => 0,
-                        'total_out' => 0,
-                        'status' => 'active',
-                        'user_id' => auth()->id()
-                    ]);
-                }
-
-                $cashBox->increment('current_balance', $cashPayment);
-                $cashBox->increment('total_in', $cashPayment);
-            }
-
-            // 8. تسجيل المعاملات النقدية والمحفظة
-            if ($walletPayment > 0 && $customer->type === 'permanent') {
-                CustomerTransaction::create([
-                    'customer_id' => $customer->id,
-                    'type' => 'payment',
-                    'amount' => $walletPayment,
-                    'description' => 'دفع من المحفظة',
-                    'reference_id' => $invoice->id,
-                    'reference_type' => 'invoice',
-                ]);
-            }
-
-            if ($cashPayment > 0) {
-                CustomerTransaction::create([
-                    'customer_id' => $customer->id,
-                    'type' => 'payment',
-                    'amount' => $cashPayment,
-                    'description' => $request->type === 'payment' ? 'دفعة نقدية' : 'إرجاع نقدي',
-                    'reference_id' => $invoice->id,
-                    'reference_type' => 'invoice',
-                ]);
-            }
-
-            // 9. إدارة المرتجعات للعميل الدائم
-            if ($request->type === 'return' && $customer->type === 'permanent') {
-                $wallet = CustomerWallet::firstOrCreate(['customer_id' => $customer->id], ['balance' => 0]);
-                $wallet->increment('balance', $total);
-
-                CustomerTransaction::create([
-                    'customer_id' => $customer->id,
-                    'amount' => $total,
-                    'type' => 'return',
-                    'transaction_date' => now(),
-                    'description' => "إرجاع منتجات فاتورة {$invoice->invoice_number}",
-                    'reference_id' => $invoice->id,
-                    'reference_type' => 'return_credit'
-                ]);
-                $invoice->update([
-                    'paid_amount' => 0,
-                    'remining_amount' => 0,
-                    'state' => 'paid'
-                ]);
-                Alert::success('نجاح', 'تم إرجاع المنتجات وإضافة الرصيد إلى المحفظة بنجاح');
-            }
-
-        });
-        // create cash box transaction for cash payment
-        if ($request->paid_amount > 0 && $invoice) {
-            $this->createCashBoxTransaction($request->paid_amount, $invoice, $customer);
+    
+            return redirect()->route('customerAccountStatement.index', $customer->id)
+                            ->with('success', 'تم إنشاء الفاتورة بنجاح!');
+        }catch(\Exception $e){
+            Alert::error('خطأ', 'حدث خطأ أثناء إنشاء الفاتورة: ' . $e->getMessage());
+            return redirect()->back()->withInput();
         }
-
-        return redirect()->route('customerAccountStatement.index', $customer->id)
-                        ->with('success', 'تم إنشاء الفاتورة بنجاح!');
     }
     /**
      * Create cash box transaction for customer payment
