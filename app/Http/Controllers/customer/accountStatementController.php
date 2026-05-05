@@ -243,7 +243,7 @@ class accountStatementController extends Controller
                 foreach ($request->products as $item) {
                     $product = Product::findOrFail($item['product_id']);
                     
-                    if($item['price'] < $product->getPriceForCustomerType($customer->price_type)){
+                    if($item['price'] < $product->price_base){
                         Alert::error('خطأ', "سعر المنتج {$product->name} لا يمكن أن يكون أقل من السعر الأساسي");
                         throw new \Exception("سعر المنتج {$product->name} لا يمكن أن يكون أقل من السعر الأساسي");    
                         
