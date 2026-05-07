@@ -15,6 +15,7 @@ use App\Models\CustomerTransaction;
 use App\Models\CustomerWallet;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -56,6 +57,385 @@ class accountStatementController extends Controller
         $invoices = $invoices->latest('date')->paginate(20);
         $remaining_amount = $invoices->sum('remining_amount');
         return view('customer.accountStatement.index', compact('customer','invoices', 'remaining_amount'));
+    }
+
+    /**
+     * Excel export (SpreadsheetML) for one customer's invoices; respects search/filter on كشف الحساب.
+     */
+    public function exportInvoicesExcel($id, Request $request)
+    {
+        $customer = Customer::with('wallet')->findOrFail($id);
+        $query = $customer->invoices();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                    ->orWhere('total_amount', 'like', "%{$search}%")
+                    ->orWhere('paid_amount', 'like', "%{$search}%")
+                    ->orWhere('remining_amount', 'like', "%{$search}%")
+                    ->orWhere('date', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('filter')) {
+            switch ($request->filter) {
+                case 'paid':
+                    $query->where('state', 'paid');
+                    break;
+                case 'unpaid':
+                    $query->where('state', 'unpaid');
+                    break;
+                case 'partial':
+                    $query->where('state', 'partial');
+                    break;
+            }
+        }
+
+        $invoices = $query->latest('date')->get();
+        $xml = $this->buildSingleCustomerInvoicesSpreadsheetXml($customer, $invoices, $request);
+        $filename = 'customer-'.$customer->id.'-invoices-'.now()->format('Y-m-d-His').'.xls';
+
+        return response($xml, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
+    /**
+     * @param  Collection<int, CustomerInvoice>  $invoices
+     */
+    private function buildSingleCustomerInvoicesSpreadsheetXml(Customer $customer, Collection $invoices, Request $request): string
+    {
+        $colCount = 7;
+        $mergeLast = $colCount - 1;
+        $dataRows = $invoices->count();
+
+        $sumTotalAmount = round((float) $invoices->sum('total_amount'), 2);
+        $sumPaidAmount = round((float) $invoices->sum('paid_amount'), 2);
+        $sumRemainingAmount = round((float) $invoices->sum('remining_amount'), 2);
+
+        $extraTailRows = 2 + ($customer->wallet ? 2 : 0);
+        $expandedRows = 4 + $dataRows + $extraTailRows;
+
+        $styles = <<<'XML'
+<Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+    <Alignment ss:Vertical="Center"/>
+    <Font ss:FontName="Segoe UI" ss:Size="11"/>
+  </Style>
+  <Style ss:ID="DocTitle">
+    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+    <Font ss:Bold="1" ss:Size="18" ss:Color="#FFFFFF"/>
+    <Interior ss:Color="#1F4E79" ss:Pattern="Solid"/>
+    <Borders>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#0D304E"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="DocMeta">
+    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+    <Font ss:Size="11" ss:Color="#2E4057"/>
+    <Interior ss:Color="#D6EAF8" ss:Pattern="Solid"/>
+    <Borders>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#A9CCE3"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="Gap">
+    <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="HeadCol">
+    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+    <Font ss:Bold="1" ss:Size="11" ss:Color="#FFFFFF"/>
+    <Interior ss:Color="#2E75B6" ss:Pattern="Solid"/>
+    <Borders>
+      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#1F4E79"/>
+      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#1F4E79"/>
+      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#1F4E79"/>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#0D304E"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="EvenTxt">
+    <Alignment ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+    <Font ss:Size="11"/>
+    <Interior ss:Color="#F5FAFD" ss:Pattern="Solid"/>
+    <Borders>
+      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D5E8F7"/>
+      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D5E8F7"/>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E4E4E4"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="OddTxt">
+    <Alignment ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+    <Font ss:Size="11"/>
+    <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+    <Borders>
+      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E4E4E4"/>
+      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E4E4E4"/>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E4E4E4"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="EvenNum">
+    <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+    <Font ss:Size="11"/>
+    <Interior ss:Color="#F5FAFD" ss:Pattern="Solid"/>
+    <NumberFormat ss:Format="#,##0.00"/>
+    <Borders>
+      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D5E8F7"/>
+      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D5E8F7"/>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E4E4E4"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="OddNum">
+    <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+    <Font ss:Size="11"/>
+    <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+    <NumberFormat ss:Format="#,##0.00"/>
+    <Borders>
+      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E4E4E4"/>
+      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E4E4E4"/>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E4E4E4"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="SumLabel">
+    <Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+    <Font ss:Bold="1" ss:Size="11"/>
+    <Interior ss:Color="#FFF2CC" ss:Pattern="Solid"/>
+    <Borders>
+      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D6B656"/>
+      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D6B656"/>
+      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#BF8F00"/>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D6B656"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="SumNum">
+    <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+    <Font ss:Bold="1" ss:Size="12"/>
+    <Interior ss:Color="#FFF2CC" ss:Pattern="Solid"/>
+    <NumberFormat ss:Format="#,##0.00"/>
+    <Borders>
+      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D6B656"/>
+      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D6B656"/>
+      <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#BF8F00"/>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D6B656"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="WalletLabel">
+    <Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+    <Font ss:Bold="1" ss:Size="11" ss:Color="#375623"/>
+    <Interior ss:Color="#E2EFDA" ss:Pattern="Solid"/>
+    <Borders>
+      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#548235"/>
+      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#548235"/>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#548235"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="WalletNum">
+    <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+    <Font ss:Bold="1" ss:Size="12" ss:Color="#375623"/>
+    <Interior ss:Color="#E2EFDA" ss:Pattern="Solid"/>
+    <NumberFormat ss:Format="#,##0.00"/>
+    <Borders>
+      <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#548235"/>
+      <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#548235"/>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#548235"/>
+    </Borders>
+  </Style>
+  <Style ss:ID="WalletNote">
+    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+    <Font ss:Size="11" ss:Italic="1" ss:Color="#375623"/>
+    <Interior ss:Color="#F4FFF9" ss:Pattern="Solid"/>
+    <Borders>
+      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#C5E0B4"/>
+    </Borders>
+  </Style>
+</Styles>
+XML;
+
+        $lines = [];
+        $lines[] = '<?xml version="1.0" encoding="UTF-8"?>';
+        $lines[] = '<?mso-application progid="Excel.Sheet"?>';
+        $lines[] = '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">';
+        $lines[] = $styles;
+
+        $lines[] = '<Worksheet ss:Name="الفواتير">';
+        $lines[] = '<Table ss:ExpandedColumnCount="'.$colCount.'" ss:ExpandedRowCount="'.$expandedRows.'" ss:FullColumns="1" ss:FullRows="1" ss:DefaultRowHeight="18">';
+        $lines[] = '<Column ss:Width="100"/>';
+        $lines[] = '<Column ss:Width="96"/>';
+        $lines[] = '<Column ss:Width="100"/>';
+        $lines[] = '<Column ss:Width="100"/>';
+        $lines[] = '<Column ss:Width="100"/>';
+        $lines[] = '<Column ss:Width="120"/>';
+        $lines[] = '<Column ss:Width="72"/>';
+
+        $cellOut = static function (string $type, $value): string {
+            if ($type === 'Number') {
+                return is_numeric($value) ? (string) $value : htmlspecialchars((string) $value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+            }
+
+            return htmlspecialchars((string) $value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        };
+
+        $emitCell = static function (array $cell, callable $cellOut): string {
+            $type = $cell['type'] ?? 'String';
+            $value = $cell['value'] ?? '';
+            $styleId = $cell['style'] ?? '';
+            $mergeAcross = $cell['mergeAcross'] ?? null;
+            $attrs = '';
+            if ($styleId !== '') {
+                $attrs .= ' ss:StyleID="'.htmlspecialchars($styleId, ENT_XML1 | ENT_QUOTES, 'UTF-8').'"';
+            }
+            if ($mergeAcross !== null) {
+                $attrs .= ' ss:MergeAcross="'.(int) $mergeAcross.'"';
+            }
+
+            return '<Cell'.$attrs.'><Data ss:Type="'.$type.'">'.$cellOut($type, $value).'</Data></Cell>';
+        };
+
+        $row = static function (array $cells) use (&$lines, $cellOut, $emitCell): void {
+            $lines[] = '<Row>';
+            foreach ($cells as $cell) {
+                $lines[] = $emitCell($cell, $cellOut);
+            }
+            $lines[] = '</Row>';
+        };
+
+        $filterNote = '';
+        if ($request->filled('search')) {
+            $filterNote .= ' — بحث: '.$request->search;
+        }
+        if ($request->filled('filter')) {
+            $filterNote .= ' — تصفية: '.match ($request->filter) {
+                'paid' => 'مدفوعة',
+                'unpaid' => 'غير مدفوعة',
+                'partial' => 'جزئي',
+                default => (string) $request->filter,
+            };
+        }
+
+        $titleLine = 'فواتير العميل: '.$customer->name;
+
+        $row([
+            [
+                'type' => 'String',
+                'value' => $titleLine,
+                'style' => 'DocTitle',
+                'mergeAcross' => $mergeLast,
+            ],
+        ]);
+        $row([
+            [
+                'type' => 'String',
+                'value' => 'تاريخ التصدير: '.now()->format('Y-m-d H:i').' — عدد الفواتير: '.$dataRows.$filterNote,
+                'style' => 'DocMeta',
+                'mergeAcross' => $mergeLast,
+            ],
+        ]);
+        $row([
+            [
+                'type' => 'String',
+                'value' => '',
+                'style' => 'Gap',
+                'mergeAcross' => $mergeLast,
+            ],
+        ]);
+
+        $row([
+            ['type' => 'String', 'value' => 'رقم الفاتورة', 'style' => 'HeadCol'],
+            ['type' => 'String', 'value' => 'التاريخ', 'style' => 'HeadCol'],
+            ['type' => 'String', 'value' => 'إجمالي الفاتورة', 'style' => 'HeadCol'],
+            ['type' => 'String', 'value' => 'المدفوع', 'style' => 'HeadCol'],
+            ['type' => 'String', 'value' => 'المتبقي', 'style' => 'HeadCol'],
+            ['type' => 'String', 'value' => 'حالة الدفع', 'style' => 'HeadCol'],
+            ['type' => 'String', 'value' => 'نوع الفاتورة', 'style' => 'HeadCol'],
+        ]);
+
+        $i = 0;
+        foreach ($invoices as $invoice) {
+            $even = $i % 2 === 0;
+            $stT = $even ? 'EvenTxt' : 'OddTxt';
+            $stN = $even ? 'EvenNum' : 'OddNum';
+            $row([
+                ['type' => 'String', 'value' => (string) $invoice->invoice_number, 'style' => $stT],
+                ['type' => 'String', 'value' => (string) $invoice->date, 'style' => $stT],
+                ['type' => 'Number', 'value' => $invoice->total_amount, 'style' => $stN],
+                ['type' => 'Number', 'value' => $invoice->paid_amount, 'style' => $stN],
+                ['type' => 'Number', 'value' => $invoice->remining_amount, 'style' => $stN],
+                ['type' => 'String', 'value' => $this->invoiceStateLabelExport($invoice->state), 'style' => $stT],
+                ['type' => 'String', 'value' => $this->invoiceTypeLabelExport($invoice->type), 'style' => $stT],
+            ]);
+            $i++;
+        }
+
+        $row([
+            [
+                'type' => 'String',
+                'value' => '',
+                'style' => 'Gap',
+                'mergeAcross' => $mergeLast,
+            ],
+        ]);
+
+        $row([
+            ['type' => 'String', 'value' => 'المجاميع (للفواتير المعروضة أعلاه فقط)', 'style' => 'SumLabel'],
+            ['type' => 'String', 'value' => '', 'style' => 'SumLabel'],
+            ['type' => 'Number', 'value' => $sumTotalAmount, 'style' => 'SumNum'],
+            ['type' => 'Number', 'value' => $sumPaidAmount, 'style' => 'SumNum'],
+            ['type' => 'Number', 'value' => $sumRemainingAmount, 'style' => 'SumNum'],
+            ['type' => 'String', 'value' => '', 'style' => 'SumLabel'],
+            ['type' => 'String', 'value' => '', 'style' => 'SumLabel'],
+        ]);
+
+        if ($customer->wallet) {
+            $balance = round((float) $customer->wallet->balance, 2);
+            $row([
+                [
+                    'type' => 'String',
+                    'value' => 'رصيد المحفظة (أموال متاحة للعميل)',
+                    'style' => 'WalletLabel',
+                    'mergeAcross' => 4,
+                ],
+                [
+                    'type' => 'Number',
+                    'value' => $balance,
+                    'style' => 'WalletNum',
+                    'mergeAcross' => 1,
+                ],
+            ]);
+            $note = $balance > 0
+                ? 'يوجد للعميل رصيد في المحفظة يمكن استخدامه في الدفع التلقائي عند توفر الشروط.'
+                : 'لا يوجد حالياً رصيد فعّال في المحفظة (الرصيد صفر).';
+            $row([
+                [
+                    'type' => 'String',
+                    'value' => $note,
+                    'style' => 'WalletNote',
+                    'mergeAcross' => $mergeLast,
+                ],
+            ]);
+        }
+
+        $lines[] = '</Table>';
+        $lines[] = '</Worksheet>';
+        $lines[] = '</Workbook>';
+
+        return implode("\n", $lines);
+    }
+
+    private function invoiceStateLabelExport(?string $state): string
+    {
+        return match ($state) {
+            'paid' => 'مدفوعة بالكامل',
+            'partial' => 'مدفوعة جزئياً',
+            default => 'غير مدفوعة',
+        };
+    }
+
+    private function invoiceTypeLabelExport(?string $type): string
+    {
+        return match ($type) {
+            'return' => 'مرتجع',
+            default => 'بيع',
+        };
     }
 
     /**
@@ -153,7 +533,7 @@ class accountStatementController extends Controller
     }
     public function show($customerId, $invoiceId){
         $customer = Customer::findOrFail($customerId);
-        $invoice = CustomerInvoice::with('items')->findOrFail($invoiceId);
+        $invoice = CustomerInvoice::with(['items.product'])->findOrFail($invoiceId);
         return view('customer.accountStatement.show', compact('customer', 'invoice'));
     }
     public function store(StoreCustomerInvoiceRequest $request, $id)
@@ -248,6 +628,10 @@ class accountStatementController extends Controller
                         throw new \Exception("سعر المنتج {$product->name} لا يمكن أن يكون أقل من السعر الأساسي");    
                         
                     }
+                    if ($item['quantity'] > $product->stock ){
+                        Alert::error('خطأ', "الكمية المطلوبة من المنتج {$product->name} غير متوفرة في المخزون");
+                        throw new \Exception("الكمية المطلوبة من المنتج {$product->name} غير متوفرة في المخزون");
+                    }
                     $unitPrice = $item['price'];
                     CustomerInvoiceItems::create([
                         'customer_invoice_id' => $invoice->id,
@@ -336,7 +720,7 @@ class accountStatementController extends Controller
             if ($request->paid_amount > 0 && $invoice) {
                 $this->createCashBoxTransaction($request->paid_amount, $invoice, $customer);
             }
-    
+            Alert::success('نجاح', 'تم إنشاء الفاتورة بنجاح!');
             return redirect()->route('customerAccountStatement.index', $customer->id)
                             ->with('success', 'تم إنشاء الفاتورة بنجاح!');
         }catch(\Exception $e){

@@ -13,8 +13,12 @@
                                 <h1 class="text-2xl font-bold">كشف حساب العميل</h1>
                                 <p class="text-blue-100 text-sm">{{ $customer->name }}</p>
                             </div>
-                            <div class="flex gap-2">
-                                
+                            <div class="flex flex-wrap gap-2">
+                                <a href="{{ route('customerAccountStatement.export.excel', ['id' => $customer->id] + request()->only(['search', 'filter'])) }}"
+                                   class="bg-emerald-500/90 hover:bg-emerald-400/90 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-md">
+                                    <i class="bi bi-file-earmark-excel"></i>
+                                    <span>تصدير Excel</span>
+                                </a>
                                 <a href="{{ route('customerAccountStatement.create', $customer->id) }}" 
                                     class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
                                     <i class="bi bi-plus-lg"></i>

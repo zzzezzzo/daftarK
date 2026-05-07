@@ -27,6 +27,7 @@ Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
     // product routes
     Route::get('/products',[ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/export/excel', [ProductController::class, 'exportExcel'])->name('products.export.excel');
     Route::get('/products/labels/print', [ProductController::class, 'printAllLabels'])->name('products.labels.print');
     Route::get('/products/{product}/label/print', [ProductController::class, 'printOneLabel'])->name('products.label.print');
     Route::get('/products/in-stock/labels/print', [ProductController::class, 'printAllInStockLables'])->name('products.inStock.labels.print');
@@ -78,6 +79,7 @@ Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::delete('/customer/{id}', [customerController::class, 'destroy'])->name('customer.destroy');
     // customer account mangement
     Route::get('/customer/{id}/accountStatement',[accountStatementController::class, 'index'])->name('customerAccountStatement.index');
+    Route::get('/customer/{id}/accountStatement/export/excel', [accountStatementController::class, 'exportInvoicesExcel'])->name('customerAccountStatement.export.excel');
     Route::get('/customer/{id}/accountStatement/transactions',[accountStatementController::class, 'transactionIndex'])->name('customerAccountStatement.transactionIndex');
     Route::get('/customer/{id}/accountStatement/create',[accountStatementController::class, 'create'])->name('customerAccountStatement.create');
     Route::post('/customer/{id}/accountStatement/create',[accountStatementController::class, 'store'])->name('customerAccountStatement.store');

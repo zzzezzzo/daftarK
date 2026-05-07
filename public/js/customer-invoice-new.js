@@ -124,6 +124,7 @@ function renderProducts() {
     table.innerHTML = '';
     productsInputs.innerHTML = '';
     let totalInvoice = 0;
+    let TotalQuantity = 0;
     
     // Update products count
     productsCount.textContent = invoiceProducts.length;
@@ -138,12 +139,13 @@ function renderProducts() {
             </tr>
         `;
         document.getElementById('totalAmount').innerText = '0.00 ج.م';
+        document.getElementById('totalQuantity').innerText = '0 وحدة';
         return;
     }
     
     invoiceProducts.forEach((item, index) => {
         totalInvoice += item.total;
-        
+        TotalQuantity += item.quantity;
         // Check if quantity exceeds stock
         const isOverStock = item.quantity > item.stock;
         const stockClass = isOverStock ? 'text-red-600' : 'text-green-600';
@@ -183,6 +185,7 @@ function renderProducts() {
     });
     
     document.getElementById('totalAmount').innerText = totalInvoice.toFixed(2) + ' ج.م';
+    document.getElementById('totalQuantity').innerText = TotalQuantity + ' وحدة';
 }
 
 // حذف المنتج

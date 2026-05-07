@@ -34,6 +34,11 @@
                                 <i class="bi bi-plus-lg"></i>
                                 <span>منتج جديد</span>
                             </a>
+                            <a href="{{ route('products.export.excel') }}"
+                               class="bg-emerald-500/90 hover:bg-emerald-400/90 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-md">
+                                <i class="bi bi-file-earmark-excel"></i>
+                                <span>تصدير Excel — كل المنتجات</span>
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -272,9 +272,20 @@
                                         </div>
                                         إجمالي الفاتورة
                                     </h3>
+
                                     <div class="text-3xl font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2">
                                         <span id="totalAmount">0.00 ج.م</span>
-                                        <i class="bi bi-currency-dollar text-2xl"></i>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-6 pt-6 border-t border-blue-200/80 dark:border-gray-600">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+                                            <i class="bi bi-123 text-blue-700 text-xl"></i>
+                                        </div>
+                                        إجمالي الكمية
+                                    </h3>
+                                    <div class="text-3xl font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2">
+                                        <span id="totalQuantity">0 وحدة</span>
                                     </div>
                                 </div>
                             </div>

@@ -1,271 +1,160 @@
+@php
+    $totalQuantity = $invoice->items->sum('quantity');
+@endphp
+
 <x-app-layout>
-    <div id="print-area" class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900 p-4">
-        <div class="max-w-7xl mx-auto">
-            <!-- Screen View - Modern Invoice Header -->
-            <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden mb-8 print:hidden">
-                <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 text-white relative overflow-hidden">
-                    <!-- Background Pattern -->
-                    <div class="absolute inset-0 opacity-10">
-                        <div class="absolute top-0 left-0 w-40 h-40 bg-white/20 rounded-full -translate-x-20 -translate-y-20"></div>
-                        <div class="absolute bottom-0 right-0 w-32 h-32 bg-white/20 rounded-full translate-x-16 translate-y-16"></div>
-                    </div>
-                    
-                    <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start gap-6">
-                        <!-- Invoice Info -->
-                        <div class="flex-1">
-                            <div class="flex items-center gap-4 mb-4">
-                                <div class="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center shadow-lg">
-                                    <i class="bi bi-receipt-cutoff text-3xl"></i>
-                                </div>
-                                <div>
-                                    <h1 class="text-3xl font-bold tracking-tight">فاتورة مبيعات</h1>
-                                    <p class="text-indigo-100 text-sm font-medium">SALES INVOICE</p>
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-white/10 backdrop-blur p-4 rounded-2xl border border-white/20">
-                                    <p class="text-indigo-100 text-xs font-semibold uppercase tracking-wider mb-1">Invoice Number</p>
-                                    <p class="text-2xl font-bold">#{{ $invoice->invoice_number }}</p>
-                                </div>
-                                <div class="bg-white/10 backdrop-blur p-4 rounded-2xl border border-white/20">
-                                    <p class="text-indigo-100 text-xs font-semibold uppercase tracking-wider mb-1">Date</p>
-                                    <p class="text-2xl font-bold">{{ $invoice->date }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Customer Info -->
-                        <div class="bg-white/10 backdrop-blur p-6 rounded-2xl border border-white/20 text-right min-w-[280px]">
-                            <h2 class="text-xl font-bold mb-3 text-white">{{ $customer->name }}</h2>
-                            <div class="space-y-2 text-indigo-100">
-                                <p class="flex items-center  gap-2">
-                                    <i class="bi bi-telephone-fill"></i>
-                                    <span>{{ $customer->phone ?? '—' }}</span>
-                                </p>
-                                @if($customer->address)
-                                <p class="flex items-center  gap-2">
-                                    <i class="bi bi-geo-alt-fill"></i>
-                                    <span>{{ $customer->address }}</span>
-                                </p>
-                                @endif
-                                @if($customer->type)
-                                <div class="mt-3 pt-3 border-t border-white/20">
-                                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
-                                        <i class="bi bi-person-badge"></i>
-                                        {{ $customer->type == 'permanent' ? 'عميل دائم' : 'عميل عابر' }}
-                                    </span>
-                                </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div id="print-area"
+         class="thermal-receipt-root min-h-screen bg-zinc-200 py-6 px-3 print:bg-white print:py-0 print:min-h-0 dark:bg-zinc-950">
+        <div class="max-w-[22rem] mx-auto w-full print:w-full print:max-w-none print:mx-0">
+            <!-- Thermal receipt paper — screen: narrow card; print: full paper width -->
+            <article
+                class="thermal-receipt-paper bg-white text-gray-900 shadow-xl rounded-sm px-5 py-6 border border-zinc-200/80 print:shadow-none print:border-0 print:rounded-none receipt-font">
 
-            <!-- Print View - Professional Invoice Header -->
-            <div class="hidden print:block">
-                <div class="border-b-4 border-gray-800 pb-6 mb-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <!-- Workshop Info -->
-                        <div class="text-right">
-                            <h1 class="text-2xl font-bold text-gray-800 mb-2">محل اليزيد </h1>
-                            <p class="text-sm text-gray-500">مشتول السوق</p>
-                            <p class="text-sm text-gray-500">01270042606</p>
-                        </div>
-                        
-                        <!-- Invoice Info -->
-                        <div class="text-left">
-                            <div class="border-2 border-gray-800 px-4 py-2 rounded">
-                                <p class="text-sm text-gray-600">فاتورة رقم</p>
-                                <p class="text-xl font-bold">#{{ $invoice->invoice_number }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-sm text-gray-600">التاريخ</p>
-                            <p class="font-semibold">{{ $invoice->date }}</p>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-sm text-gray-600">العميل</p>
-                            <p class="font-semibold text-lg">{{ $customer->name }}</p>
-                            @if($customer->phone)
-                            <p class="text-sm text-gray-600">{{ $customer->phone }}</p>
-                            @endif
-                            @if($customer->address)
-                            <p class="text-sm text-gray-600">{{ $customer->address }}</p>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <!-- Store header -->
+                <header class="text-center border-b border-dotted border-zinc-400 pb-4 mb-4 print:pb-3 print:mb-3">
+                    <h1 class="text-xl font-bold tracking-tight text-gray-900 print:text-[15pt] print:leading-tight">محل اليزيد</h1>
+                    <p class="text-xs text-gray-600 mt-1 leading-relaxed print:text-[10pt]">مشتول السوق</p>
+                    <p class="text-xs text-gray-600 print:text-[10pt]">01270042606</p>
+                </header>
 
-            <!-- Invoice Body -->
-            <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 mb-8 print:shadow-none print:rounded-none print:p-0">
-                <!-- Products Table -->
-                <div class="overflow-x-auto mb-8">
-                    <table class="w-full">
-                        <thead class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 print:bg-gray-100">
-                            <tr>
-                                <th class="p-4 text-right font-semibold border-b-2 border-gray-200 dark:border-gray-600 print:border-b-1 print:border-gray-800">
-                                    <div class="flex items-center  gap-2">
-                                        <i class="bi bi-hash text-gray-400"></i>
-                                        #
-                                    </div>
-                                </th>
-                                <th class="p-4 text-right font-semibold border-b-2 border-gray-200 dark:border-gray-600 print:border-b-2 print:border-gray-800">
-                                    <div class="flex items-center  gap-2">
-                                        <i class="bi bi-box text-gray-400"></i>
-                                        المنتج
-                                    </div>
-                                </th>
-                                <th class="p-4 text-center font-semibold border-b-2 border-gray-200 dark:border-gray-600 print:border-b-2 print:border-gray-800">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <i class="bi bi-123 text-gray-400"></i>
-                                        الكمية
-                                    </div>
-                                </th>
-                                <th class="p-4 text-center font-semibold border-b-2 border-gray-200 dark:border-gray-600 print:border-b-2 print:border-gray-800">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <i class="bi bi-currency-dollar text-gray-400"></i>
-                                        سعر الوحدة
-                                    </div>
-                                </th>
-                                <th class="p-4 text-right font-semibold border-b-2 border-gray-200 dark:border-gray-600 print:border-b-2 print:border-gray-800">
-                                    <div class="flex items-center  gap-2">
-                                        <i class="bi bi-calculator text-gray-400"></i>
-                                        الإجمالي
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700 print:divide-y print:divide-gray-300">
-                            @foreach($invoice->items as $i => $item)
-                            <tr class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-200 print:hover:bg-white">
-                                <td class="p-4 text-gray-600 dark:text-gray-400 font-medium border-b border-gray-100 dark:border-gray-700 print:border-b print:border-gray-300">
-                                    <span class="print:hidden inline-flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full text-sm font-bold">
-                                        {{ $i+1 }}
-                                    </span>
-                                    <span class="hidden print:block font-bold">{{ $i+1 }}</span>
-                                </td>
-                                <td class="p-4 font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700 print:border-b print:border-gray-300">
-                                    <div class="flex items-start gap-3">
-                                        <div class="print:hidden w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
-                                            <i class="bi bi-box text-blue-600"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold">{{ $item->product->name }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 print:text-gray-600">{{ $item->product->category->name ?? 'بدون تصنيف' }}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="p-4 text-center border-b border-gray-100 dark:border-gray-700 print:border-b print:border-gray-300">
-                                    <span class="print:hidden inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded-xl font-bold text-lg min-w-[60px]">
-                                        {{ $item->quantity }}
-                                    </span>
-                                    <span class="hidden print:block font-bold text-lg">{{ $item->quantity }}</span>
-                                </td>
-                                <td class="p-4 text-center font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-700 print:border-b print:border-gray-300">
-                                    <div class="print:hidden inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-800 rounded-lg">
-                                        <i class="bi bi-currency-dollar"></i>
-                                        <span>{{ number_format($item->unit_price, 2) }}</span>
-                                    </div>
-                                    <span class="hidden print:block">{{ number_format($item->unit_price, 2) }}</span>
-                                </td>
-                                <td class="p-4 text-right font-bold text-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 border-b-2 border-blue-200 dark:border-blue-800 print:bg-white  print:border-none">
-                                    <div class="print:hidden inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl">
-                                        <i class="bi bi-cash-stack"></i>
-                                        <span>{{ number_format($item->quantity * $item->unit_price, 2) }}</span>
-                                    </div>
-                                    <span class="hidden print:block text-lg font-bold">{{ number_format($item->quantity * $item->unit_price, 2) }}</span>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 print:grid-cols-3 print:gap-4">
-                    <!-- Total Amount -->
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-2xl border-2 border-blue-200 dark:border-blue-800 print:bg-white print:border-none print:rounded-lg">
-                        <div class="flex items-center gap-4 mb-3">
-                            <div class="print:hidden w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                                <i class="bi bi-receipt text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 font-medium print:text-gray-700">الإجمالي الفاتورة</p>
-                                <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 print:text-gray-800">{{ number_format($invoice->total_amount, 2) }}</p>
-                            </div>
+                <!-- Transaction meta -->
+                <section class="text-xs text-gray-700 space-y-2 mb-4 border-b border-dotted border-zinc-400 pb-4 print:text-[10pt] print:space-y-1.5 print:mb-3 print:pb-3">
+                    <div class="flex justify-between gap-3">
+                        <span class="text-gray-500">فاتورة</span>
+                        <span class="font-semibold tabular-nums">#{{ $invoice->invoice_number }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                        <span class="text-gray-500">التاريخ</span>
+                        <span class="font-medium tabular-nums">{{ $invoice->date }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 items-start">
+                        <span class="text-gray-500 shrink-0">العميل</span>
+                        <span class="font-medium text-right leading-snug">{{ $customer->name }}</span>
+                    </div>
+                    @if($customer->phone)
+                        <div class="flex justify-between gap-3">
+                            <span class="text-gray-500">جوال</span>
+                            <span class="tabular-nums">{{ $customer->phone }}</span>
                         </div>
-                    </div>
+                    @endif
+                </section>
 
-                    <!-- Paid Amount -->
-                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-2xl border-2 border-green-200 dark:border-green-800 print:bg-white print:border-none print:rounded-lg">
-                        <div class="flex items-center gap-4 mb-3">
-                            <div class="print:hidden w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                                <i class="bi bi-check-circle text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 font-medium print:text-gray-700">المبلغ المدفوع</p>
-                                <p class="text-3xl font-bold text-green-600 dark:text-green-400 print:text-gray-800">{{ number_format($invoice->paid_amount, 2) }}</p>
-                            </div>
-                        </div>
+                <!-- Line items -->
+                <section class="mb-4 border-b border-dotted border-zinc-400 pb-4 print:mb-3 print:pb-3">
+                    <div class="flex justify-between gap-1 text-[11px] font-semibold text-gray-500 mb-2 print:text-[9pt] print:mb-1.5">
+                        <span class="flex-1 min-w-0">المنتج</span>
+                        <span class="w-11 shrink-0 text-center">كمية</span>
+                        <span class="w-[4.5rem] shrink-0 text-left tabular-nums">الإجمالي</span>
                     </div>
+                    <ul class="space-y-2.5 print:space-y-1.5">
+                        @foreach($invoice->items as $item)
+                            @php
+                                $lineTotal = $item->quantity * $item->unit_price;
+                            @endphp
+                            <li class="flex justify-between gap-1 text-sm leading-snug print:text-[11pt] print:leading-snug">
+                                <span class="flex-1 min-w-0 break-words">{{ $item->product->name }}</span>
+                                <span class="w-11 shrink-0 text-center tabular-nums font-semibold">{{ $item->quantity }}</span>
+                                <span class="w-[4.5rem] shrink-0 text-left tabular-nums">{{ number_format($lineTotal, 2) }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
 
-                    <!-- Remaining Amount -->
-                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-2xl border-2 border-orange-200 dark:border-orange-800 print:bg-white print:border-none print:rounded-lg">
-                        <div class="flex items-center gap-4 mb-3">
-                            <div class="print:hidden w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
-                                <i class="bi bi-hourglass-split text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 font-medium print:text-gray-700">المبلغ المتبقي</p>
-                                <p class="text-3xl font-bold text-orange-600 dark:text-orange-400 print:text-gray-800">{{ number_format($invoice->remining_amount, 2) }}</p>
-                            </div>
-                        </div>
+                <!-- Totals -->
+                <section class="space-y-2 text-sm mb-4 print:text-[10pt] print:space-y-1.5 print:mb-3">
+                    <div class="flex justify-between gap-3">
+                        <span class="text-gray-600">إجمالي الكمية</span>
+                        <span class="font-semibold tabular-nums">{{ $totalQuantity }}</span>
                     </div>
-                </div>
-            </div>
+                    <div class="flex justify-between gap-3 items-baseline border-t border-dotted border-zinc-400 mt-2 pt-3 print:mt-1.5 print:pt-2">
+                        <span class="text-base font-bold text-gray-900 print:text-[12pt]">الإجمالي</span>
+                        <span class="text-lg font-bold tabular-nums print:text-[13pt]">{{ number_format($invoice->total_amount, 2) }} ج.م</span>
+                    </div>
+                    <div class="flex justify-between gap-3 text-xs pt-1 print:text-[10pt]">
+                        <span class="text-gray-600">المدفوع</span>
+                        <span class="tabular-nums font-medium">{{ number_format($invoice->paid_amount, 2) }} ج.م</span>
+                    </div>
+                    <div class="flex justify-between gap-3 text-xs print:text-[10pt]">
+                        <span class="text-gray-600">المتبقي</span>
+                        <span class="tabular-nums font-medium">{{ number_format($invoice->remining_amount, 2) }} ج.م</span>
+                    </div>
+                </section>
 
-            <!-- Print Footer -->
-            <div class="hidden print:block mt-8 pt-6 border-t-2 border-gray-800">
-                <div class="flex justify-between items-center">
-                    <div class="text-sm text-gray-600">
-                        <p>شكراً لتعاملكم مع محل اليزيد</p>
-                        <p>Thank you for your business</p>
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        <p>التوقيع:</p>
-                        <p class="mt-8 border-b border-gray-400 w-48"></p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="no-print flex flex-col lg:flex-row justify-between items-center gap-6 mt-8">
-                <a href="{{ route('customerAccountStatement.index', $customer->id) }}"
-                   class="group flex items-center gap-3 bg-gray-600 text-white px-8 py-4 rounded-2xl hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 shadow-xl">
-                    <i class="bi bi-arrow-right text-xl"></i>
-                    <span class="font-semibold">رجوع للقائمة</span>
-                </a>
-                
-                <div class="flex gap-4">
-                    <button onclick="window.print()"
-                        class="group flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl">
-                        <i class="bi bi-printer-fill text-xl"></i>
-                        <span class="font-semibold">طباعة الفاتورة</span>
+
+                <footer class="text-center border-t border-dotted border-zinc-400 pt-4 print:pt-3">
+                    <p class="text-sm font-bold text-gray-900 tracking-wide print:text-[11pt]">شكراً لكم</p>
+                    <p class="text-[10px] text-gray-500 mt-1 print:text-[8pt]">Thank you</p>
+                </footer>
+            </article>
+
+            <!-- Actions (screen only) -->
+            <div class="no-print flex flex-col gap-4 mt-8">
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a href="{{ route('customerAccountStatement.index', $customer->id) }}"
+                       class="flex items-center justify-center gap-2 bg-zinc-700 text-white px-6 py-3 rounded-xl hover:bg-zinc-800 transition-colors shadow-md text-sm font-semibold">
+                        <i class="bi bi-arrow-right"></i>
+                        رجوع للقائمة
+                    </a>
+                    <button type="button" onclick="window.print()"
+                            class="flex items-center justify-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-colors shadow-md text-sm font-semibold">
+                        <i class="bi bi-printer-fill"></i>
+                        طباعة الفاتورة
                     </button>
-                    
-                    <button onclick="window.open('{{ route('customerAccountStatement.edit', [$customer->id, $invoice->id]) }}', '_blank')"
-                        class="group flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-2xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-xl">
-                        <i class="bi bi-pencil-square text-xl"></i>
-                        <span class="font-semibold">تعديل الفاتورة</span>
+                    <button type="button"
+                            onclick="window.open('{{ route('customerAccountStatement.edit', [$customer->id, $invoice->id]) }}', '_blank')"
+                            class="flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition-colors shadow-md text-sm font-semibold">
+                        <i class="bi bi-pencil-square"></i>
+                        تعديل الفاتورة
                     </button>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        /* Readable monospace like thermal printers */
+        .receipt-font {
+            font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+        }
+
+        @media print {
+            /*
+             * Override resources/css/app.css print rules that force A4 landscape and
+             * position:absolute + max-height on #print-area (causes tiny receipt in corner).
+             */
+            @page {
+                size: auto;
+                margin: 2mm;
+            }
+
+            #print-area.thermal-receipt-root {
+                position: static !important;
+                left: auto !important;
+                top: auto !important;
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                min-height: 0 !important;
+                background: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            #print-area.thermal-receipt-root,
+            #print-area.thermal-receipt-root * {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+
+            #print-area.thermal-receipt-root .thermal-receipt-paper {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 3mm 4mm !important;
+                box-sizing: border-box !important;
+            }
+        }
+    </style>
 </x-app-layout>
