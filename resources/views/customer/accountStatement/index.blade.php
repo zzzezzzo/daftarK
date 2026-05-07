@@ -333,6 +333,9 @@
                 </div>
             </div>
         </div>
-        
-        
-    </x-app-layout>
+    @if(session('success'))
+        <script>
+            localStorage.removeItem("customerInvoiceProducts");
+        </script>
+    @endif
+</x-app-layout>

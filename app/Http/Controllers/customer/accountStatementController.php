@@ -259,12 +259,12 @@ XML;
 
         $lines[] = '<Worksheet ss:Name="الفواتير">';
         $lines[] = '<Table ss:ExpandedColumnCount="'.$colCount.'" ss:ExpandedRowCount="'.$expandedRows.'" ss:FullColumns="1" ss:FullRows="1" ss:DefaultRowHeight="18">';
-        $lines[] = '<Column ss:Width="100"/>';
-        $lines[] = '<Column ss:Width="96"/>';
-        $lines[] = '<Column ss:Width="100"/>';
-        $lines[] = '<Column ss:Width="100"/>';
-        $lines[] = '<Column ss:Width="100"/>';
-        $lines[] = '<Column ss:Width="120"/>';
+        $lines[] = '<Column ss:Width="70"/>';
+        $lines[] = '<Column ss:Width="70"/>';
+        $lines[] = '<Column ss:Width="60"/>';
+        $lines[] = '<Column ss:Width="60"/>';
+        $lines[] = '<Column ss:Width="60"/>';
+        $lines[] = '<Column ss:Width="60"/>';
         $lines[] = '<Column ss:Width="72"/>';
 
         $cellOut = static function (string $type, $value): string {
@@ -546,7 +546,7 @@ XML;
                 // 1. حساب إجمالي الفاتورة
                 $total = collect($request->products)->sum(function($item) use ($customer) {
                     $product = Product::with(['category', 'category.priceRate'])->findOrFail($item['product_id']);
-                    $unitPrice = $item['price'];
+                    $unitPrice = $item['unit_price'] ?? $item['price'] ?? 0;
                     return $item['quantity'] * $unitPrice;
                 });
     
@@ -623,7 +623,8 @@ XML;
                 foreach ($request->products as $item) {
                     $product = Product::findOrFail($item['product_id']);
                     
-                    if($item['price'] < $product->price_base){
+                    $itemPrice = $item['unit_price'] ?? $item['price'] ?? 0;
+                    if($itemPrice < $product->price_base){
                         Alert::error('خطأ', "سعر المنتج {$product->name} لا يمكن أن يكون أقل من السعر الأساسي");
                         throw new \Exception("سعر المنتج {$product->name} لا يمكن أن يكون أقل من السعر الأساسي");    
                         
@@ -632,7 +633,7 @@ XML;
                         Alert::error('خطأ', "الكمية المطلوبة من المنتج {$product->name} غير متوفرة في المخزون");
                         throw new \Exception("الكمية المطلوبة من المنتج {$product->name} غير متوفرة في المخزون");
                     }
-                    $unitPrice = $item['price'];
+                    $unitPrice = $item['unit_price'] ?? $item['price'] ?? 0;
                     CustomerInvoiceItems::create([
                         'customer_invoice_id' => $invoice->id,
                         'product_id' => $item['product_id'],

@@ -302,6 +302,11 @@
             </div>
         </div>
     </div>
+    @if(session('success'))
+        <script>
+            localStorage.removeItem("invoiceProducts");
+        </script>
+    @endif
 
     <script>
         function openPaymentModal() {

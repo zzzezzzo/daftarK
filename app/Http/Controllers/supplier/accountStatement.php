@@ -265,12 +265,12 @@ class accountStatement extends Controller
 
             DB::commit();
             Alert::success('نجاح', 'تم تسجيل العملية وتحديث كشف الحساب');
-            return redirect()->route('accountStatement.index', $id);
+            return redirect()->route('accountStatement.index', $id)->with('success', 'تم تسجيل العملية وتحديث كشف الحساب');
 
         } catch (\Exception $e) {
             DB::rollBack();
             Alert::error('خطأ', $e->getMessage());
-            return redirect()->back();
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 

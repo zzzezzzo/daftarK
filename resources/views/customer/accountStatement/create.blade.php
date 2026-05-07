@@ -260,6 +260,12 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <div id="emptyState" class="text-center py-8">
+                                    <div class="text-gray-400 dark:text-gray-500">
+                                        <i class="bi bi-inbox text-4xl mb-2"></i>
+                                        <div>لا توجد منتجات مضافة</div>
+                                    </div>
+                                </div>
                             </div>
                             
 
@@ -274,7 +280,7 @@
                                     </h3>
 
                                     <div class="text-3xl font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2">
-                                        <span id="totalAmount">0.00 ج.م</span>
+                                        <span id="totalAmount">0.00</span> ج.م
                                     </div>
                                 </div>
                                 <div class="flex items-center justify-between mt-6 pt-6 border-t border-blue-200/80 dark:border-gray-600">
