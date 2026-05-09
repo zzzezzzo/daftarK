@@ -91,6 +91,12 @@ class accountStatementController extends Controller
                     break;
             }
         }
+        if($request->filled('from_date') && $request->filled('to_date')){
+            $query->whereBetween('date', [
+                $request->from_date,
+                $request->to_date
+            ]);
+        }
 
         $invoices = $query->latest('date')->get();
         $xml = $this->buildSingleCustomerInvoicesSpreadsheetXml($customer, $invoices, $request);
@@ -256,7 +262,6 @@ XML;
         $lines[] = '<?mso-application progid="Excel.Sheet"?>';
         $lines[] = '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">';
         $lines[] = $styles;
-
         $lines[] = '<Worksheet ss:Name="الفواتير">';
         $lines[] = '<Table ss:ExpandedColumnCount="'.$colCount.'" ss:ExpandedRowCount="'.$expandedRows.'" ss:FullColumns="1" ss:FullRows="1" ss:DefaultRowHeight="18">';
         $lines[] = '<Column ss:Width="70"/>';
@@ -271,7 +276,6 @@ XML;
             if ($type === 'Number') {
                 return is_numeric($value) ? (string) $value : htmlspecialchars((string) $value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
             }
-
             return htmlspecialchars((string) $value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
         };
 
@@ -540,6 +544,7 @@ XML;
     {
         // dd($request->all());
         $customer = Customer::findOrFail($id);
+        // dd($customer->type);
         $invoice = null;
         try{
             DB::transaction(function() use ($request, $customer, &$invoice) {
@@ -585,7 +590,7 @@ XML;
                     }
                     if ($totalPaid != $total) {
                         Alert::error('خطأ', 'لا يمكن إنشاء فاتورة غير مدفوعة أو بفائض لعميل عابر. يجب دفع كامل المبلغ.');
-                        return redirect()->back()->withInput();
+                        throw new \Exception('لا يمكن إنشاء فاتورة غير مدفوعة أو بفائض لعميل عابر. يجب دفع كامل المبلغ.');
                     }
                     $remaining = 0;
                     

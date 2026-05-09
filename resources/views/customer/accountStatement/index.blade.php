@@ -14,11 +14,6 @@
                                 <p class="text-blue-100 text-sm">{{ $customer->name }}</p>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <a href="{{ route('customerAccountStatement.export.excel', ['id' => $customer->id] + request()->only(['search', 'filter'])) }}"
-                                   class="bg-emerald-500/90 hover:bg-emerald-400/90 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-md">
-                                    <i class="bi bi-file-earmark-excel"></i>
-                                    <span>تصدير Excel</span>
-                                </a>
                                 <a href="{{ route('customerAccountStatement.create', $customer->id) }}" 
                                     class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
                                     <i class="bi bi-plus-lg"></i>
@@ -215,9 +210,8 @@
                     </div>
                     <!-- Search Filter -->
                     <form action="{{ route('customerAccountStatement.index', $customer->id) }}" method="GET" class="mb-4">
-                        @csrf
-                        <div class="flex items-center gap-4">
-                            <div class="relative flex-1">
+                        <div class="grid grid-cols-1 xl:grid-cols-12 gap-3">
+                            <div class="relative xl:col-span-4">
                                 <i class="bi bi-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                 <input 
                                     type="text" 
@@ -226,16 +220,42 @@
                                     placeholder="ابحث في الفواتير..." 
                                     class="w-full pr-12 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all">
                             </div>
-                            <select name="filter" class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                            <select name="filter" class="xl:col-span-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                                 <option value="">جميع الفواتير</option>
                                 <option value="paid" {{ request('filter') == 'paid' ? 'selected' : '' }}>المدفوعة فقط</option>
                                 <option value="unpaid" {{ request('filter') == 'unpaid' ? 'selected' : '' }}>غير المدفوعة</option>
                                 <option value="partial" {{ request('filter') == 'partial' ? 'selected' : '' }}>المدفوعة جزئياً</option>
                             </select>
-                            <button type="submit" class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <input 
+                                type="date" 
+                                name="from_date" 
+                                value="{{ request('from_date') }}"
+                                class="xl:col-span-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                            <input 
+                                type="date" 
+                                name="to_date" 
+                                value="{{ request('to_date') }}"
+                                class="xl:col-span-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                            <button type="submit" class="xl:col-span-1 px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                                 <i class="bi bi-search"></i>
                                 بحث
                             </button>
+                            <a href="{{ route('customerAccountStatement.index', $customer->id) }}"
+                                class="xl:col-span-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                                إعادة
+                            </a>
+                        </div>
+                        <div class="mt-3 rounded-xl bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-gray-700 dark:to-gray-700 border border-emerald-100 dark:border-gray-600 p-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                            <p class="text-sm text-gray-700 dark:text-gray-200">
+                                <i class="bi bi-info-circle text-emerald-600"></i>
+                                التصدير سيشمل نفس نتائج البحث والتصفية والفترة الزمنية الحالية.
+                            </p>
+                            <a href="{{ route('customerAccountStatement.export.excel', array_merge(['id' => $customer->id], request()->only(['search', 'filter', 'from_date', 'to_date']))) }}"
+                                class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors">
+                                <i class="bi bi-download"></i>
+                                تنزيل Excel
+                            </a>
                         </div>
                     </form>
                 </div>
