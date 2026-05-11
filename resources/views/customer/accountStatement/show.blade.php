@@ -12,7 +12,7 @@
 
                 <!-- Store header -->
                 <header class="text-center border-b border-dotted border-zinc-400 pb-4 mb-4 print:pb-3 print:mb-3">
-                    <h1 class="text-xl font-bold tracking-tight text-gray-900 print:text-[15pt] print:leading-tight">محل اليزيد</h1>
+                    <h1 class="text-xl font-bold tracking-tight text-gray-900 print:text-[15pt] print:leading-tight">محل ابو يزيد</h1>
                     <p class="text-xs text-gray-600 mt-1 leading-relaxed print:text-[10pt]">مشتول السوق</p>
                     <p class="text-xs text-gray-600 print:text-[10pt]">01270042606</p>
                 </header>
@@ -43,6 +43,7 @@
                 <section class="mb-4 border-b border-dotted border-zinc-400 pb-4 print:mb-3 print:pb-3">
                     <div class="flex justify-between gap-1 text-[11px] font-semibold text-gray-500 mb-2 print:text-[9pt] print:mb-1.5">
                         <span class="flex-1 min-w-0">المنتج</span>
+                        <span class="w-11 shrink-0 text-center">السعر</span>
                         <span class="w-11 shrink-0 text-center">كمية</span>
                         <span class="w-[4.5rem] shrink-0 text-left tabular-nums">الإجمالي</span>
                     </div>
@@ -53,6 +54,7 @@
                             @endphp
                             <li class="flex justify-between gap-1 text-sm leading-snug print:text-[11pt] print:leading-snug">
                                 <span class="flex-1 min-w-0 break-words">{{ $item->product->name }}</span>
+                                <span class="w-11 shrink-0 text-center tabular-nums font-semibold">{{ $item->unit_price }}</span>
                                 <span class="w-11 shrink-0 text-center tabular-nums font-semibold">{{ $item->quantity }}</span>
                                 <span class="w-[4.5rem] shrink-0 text-left tabular-nums">{{ number_format($lineTotal, 2) }}</span>
                             </li>

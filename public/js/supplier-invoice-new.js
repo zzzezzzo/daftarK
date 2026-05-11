@@ -247,6 +247,14 @@ function updateTotal() {
 
     document.getElementById("totalAmount").innerText =
         total.toFixed(2);
+    const totalQtyElement = document.getElementById("totalQuantity");
+    if (totalQtyElement) {
+        const totalQty = invoiceProducts.reduce(
+            (sum, item) => sum + item.quantity,
+            0
+        );
+        totalQtyElement.innerText = `${totalQty} قطعة`;
+    }
 }
 
 /* ===========================

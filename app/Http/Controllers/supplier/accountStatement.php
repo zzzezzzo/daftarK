@@ -496,9 +496,11 @@ class accountStatement extends Controller
             
             DB::commit();
             Alert::success('نجاح', 'تم تسجيل الدفعة بنجاح');
+            return redirect()->route('accountStatement.index', $supplierId);
         } catch (\Throwable $th) {
             DB::rollBack();
             Alert::error('فشل', 'لم يتم تسجيل الدفعة بنجاح');
+            return redirect()->route('accountStatement.index', $supplierId);
         }
     }
     /**

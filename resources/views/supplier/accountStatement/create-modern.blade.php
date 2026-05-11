@@ -356,6 +356,15 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <div>
+                                <h3 class="text-xl font-bold mb-1">إجمالي الكمية</h3>
+                                <p class="text-yellow-100 text-sm">مجموع كميات المنتجات</p>
+                            </div>
+                            <div class="text-3xl font-bold">
+                                <span id="totalQuantity">0 قطعة</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
