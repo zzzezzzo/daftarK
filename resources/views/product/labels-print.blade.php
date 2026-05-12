@@ -49,11 +49,9 @@
             width: 210mm;
             margin: 0 auto;
             display: grid;
-
             /* عرض الاستيكر 40mm */
             grid-template-columns: repeat(auto-fill, 40mm);
-
-            gap: 2mm;
+            gap: 3mm;
             justify-content: start;
         }
         @media (max-width: 640px) {
@@ -61,30 +59,22 @@
         }
         .label {
             width: 40mm;
-            height: 30mm;
-
+            height: 25mm;
             background: #fff;
             border-radius: 2mm;
-
-            padding: 2mm;
-
+            padding: 3mm;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-
-            border: 1px solid #d1d5db;
-
             overflow: hidden;
-
             page-break-inside: avoid;
             break-inside: avoid;
         }
         .label-name {
-            font-size: 7pt;
+            font-size: 8pt;
             line-height: 1.1;
-            margin-bottom: 1mm;
-
+            margin-bottom: 2mm;
             max-height: 2.2em;
             overflow: hidden;
         }
@@ -101,6 +91,7 @@
         }
 
         .label-code {
+            padding: 0 2mm;
             margin-top: 1mm;
             font-size: 7pt;
         }
@@ -113,15 +104,38 @@
             border-radius: 12px;
         }
         @media print {
-            body { background: #fff; padding: 0; }
+            @page {
+                size: 40mm 30mm portrait; /* نفس المقاس اللي في تعريف الطابعة */
+                margin: 0;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                background: #fff;
+            }
             .toolbar { display: none !important; }
             .sheet {
-                gap: 2mm;
-                max-width: none;
+                display: block; /* نلغي الـ grid تماماً في الطباعة */
+                width: 40mm;
+                margin: 0;
             }
             .label {
-                border: 1px solid #ccc;
-                box-shadow: none;
+                width: 40mm;
+                height: 30mm; /* لازم يطابق تعريف الطابعة */
+                border: none; /* شيل البرور عشان ميخدش مساحة */
+                margin: 0;
+                padding: 3mm; /* تحكم في الهامش الداخلي فقط */
+                page-break-after: always; /* مهم جداً عشان كل استيكر يبدأ في صفحة جديدة */
+                break-after: page;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                box-sizing: border-box;
+            }
+            .barcode-wrap svg{
+                width:90%;
+                height: auto !important;
             }
         }
     </style>
