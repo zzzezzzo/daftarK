@@ -87,7 +87,7 @@
         }
         .barcode-wrap svg {
             width: 100%;
-            height: 10mm !important;
+            height: 8mm !important;
         }
 
         .label-code {
@@ -135,7 +135,6 @@
             }
             .barcode-wrap svg{
                 width:90%;
-                height: auto !important;
             }
         }
     </style>
