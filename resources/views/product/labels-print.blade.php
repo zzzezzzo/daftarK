@@ -46,37 +46,46 @@
         }
         .toolbar button:hover { opacity: .95; }
         .sheet {
-            max-width: 210mm;
+            width: 210mm;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8mm;
+
+            /* عرض الاستيكر 40mm */
+            grid-template-columns: repeat(auto-fill, 40mm);
+
+            gap: 2mm;
+            justify-content: start;
         }
         @media (max-width: 640px) {
             .sheet { grid-template-columns: 1fr; }
         }
         .label {
+            width: 40mm;
+            height: 30mm;
+
             background: #fff;
-            border-radius: 10px;
-            padding: 6mm 5mm 5mm;
-            min-height: 38mm;
+            border-radius: 2mm;
+
+            padding: 2mm;
+
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
+
             border: 1px solid #d1d5db;
+
+            overflow: hidden;
+
             page-break-inside: avoid;
             break-inside: avoid;
         }
         .label-name {
-            width: 100%;
-            text-align: center;
-            font-size: 11pt;
-            font-weight: 700;
-            line-height: 1.35;
-            margin-bottom: 3mm;
-            word-break: break-word;
-            max-height: 2.8em;
+            font-size: 7pt;
+            line-height: 1.1;
+            margin-bottom: 1mm;
+
+            max-height: 2.2em;
             overflow: hidden;
         }
         .barcode-wrap {
@@ -87,17 +96,13 @@
             overflow: hidden;
         }
         .barcode-wrap svg {
-            max-width: 100%;
-            height: auto;
-            display: block;
+            width: 100%;
+            height: 10mm !important;
         }
+
         .label-code {
-            margin-top: 2mm;
-            font-family: ui-monospace, 'Cascadia Code', monospace;
-            font-size: 11pt;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            text-align: center;
+            margin-top: 1mm;
+            font-size: 7pt;
         }
         .empty {
             max-width: 210mm;
@@ -111,7 +116,7 @@
             body { background: #fff; padding: 0; }
             .toolbar { display: none !important; }
             .sheet {
-                gap: 5mm;
+                gap: 2mm;
                 max-width: none;
             }
             .label {
