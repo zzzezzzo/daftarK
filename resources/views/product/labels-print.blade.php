@@ -51,7 +51,7 @@
             display: grid;
             /* عرض الاستيكر 40mm */
             grid-template-columns: repeat(auto-fill, 40mm);
-            gap: 3mm;
+            /* gap: 3mm; */
             justify-content: start;
         }
         @media (max-width: 640px) {

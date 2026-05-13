@@ -8,17 +8,17 @@
         <div class="max-w-[22rem] mx-auto w-full print:w-full print:max-w-none print:mx-0">
             <!-- Thermal receipt paper — screen: narrow card; print: full paper width -->
             <article
-                class="thermal-receipt-paper bg-white text-gray-900 shadow-xl rounded-sm px-5 py-6 border border-zinc-200/80 print:shadow-none print:border-0 print:rounded-none receipt-font">
+                class="thermal-receipt-paper bg-white text-gray-900 shadow-xl rounded-sm px-5 py-1 border border-zinc-200/80 print:shadow-none print:border-0 print:rounded-none receipt-font">
 
                 <!-- Store header -->
-                <header class="text-center border-b border-dotted border-zinc-400 pb-4 mb-4 print:pb-3 print:mb-3">
+                <header class="text-center border-b border-dotted border-zinc-400 pb-4 mb-1 print:pb-3 print:mb-3">
                     <h1 class="text-xl font-bold tracking-tight text-gray-900 print:text-[15pt] print:leading-tight">محل ابو يزيد</h1>
-                    <p class="text-xs text-gray-600 mt-1 leading-relaxed print:text-[10pt]">مشتول السوق</p>
+                    <p class="text-xs text-gray-600  leading-relaxed print:text-[10pt]">مشتول السوق</p>
                     <p class="text-xs text-gray-600 print:text-[10pt]">01270042606</p>
                 </header>
 
                 <!-- Transaction meta -->
-                <section class="text-xs text-gray-700 space-y-2 mb-4 border-b border-dotted border-zinc-400 pb-4 print:text-[10pt] print:space-y-1.5 print:mb-3 print:pb-3">
+                <section class="text-xs text-gray-700  mb-1 border-b border-dotted border-zinc-400 pb-4 print:text-[10pt] print:space-y-1.5  print:pb-3">
                     <div class="flex justify-between gap-3">
                         <span class="text-gray-500">فاتورة</span>
                         <span class="font-semibold tabular-nums">#{{ $invoice->invoice_number }}</span>
@@ -33,38 +33,43 @@
                     </div>
                     @if($customer->phone)
                         <div class="flex justify-between gap-3">
-                            <span class="text-gray-500">جوال</span>
+                            <span class="text-gray-500">رقم الهاتف</span>
                             <span class="tabular-nums">{{ $customer->phone }}</span>
                         </div>
                     @endif
                 </section>
 
                 <!-- Line items -->
-                <section class="mb-4 border-b border-dotted border-zinc-400 pb-4 print:mb-3 print:pb-3">
-                    <div class="flex justify-between gap-1 text-[11px] font-semibold text-gray-500 mb-2 print:text-[9pt] print:mb-1.5">
-                        <span class="flex-1 min-w-0">المنتج</span>
-                        <span class="w-11 shrink-0 text-center">السعر</span>
-                        <span class="w-11 shrink-0 text-center">كمية</span>
-                        <span class="w-[4.5rem] shrink-0 text-left tabular-nums">الإجمالي</span>
-                    </div>
-                    <ul class="space-y-2.5 print:space-y-1.5">
-                        @foreach($invoice->items as $item)
-                            @php
-                                $lineTotal = $item->quantity * $item->unit_price;
-                            @endphp
-                            <li class="flex justify-between gap-1 text-sm leading-snug print:text-[11pt] print:leading-snug">
-                                <span class="flex-1 min-w-0 break-words">{{ $item->product->name }}</span>
-                                <span class="w-11 shrink-0 text-center tabular-nums font-semibold">{{ $item->unit_price }}</span>
-                                <span class="w-11 shrink-0 text-center tabular-nums font-semibold">{{ $item->quantity }}</span>
-                                <span class="w-[4.5rem] shrink-0 text-left tabular-nums">{{ number_format($lineTotal, 2) }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </section>
+               <section class="mb-4 border-b border-dotted border-zinc-400 pb-4 print:mb-3 print:pb-3">
+    <!-- استخدام border-black و border-collapse لضمان ظهور الخطوط بوضوح كما في الصورة -->
+    <table class="w-full text-right border-collapse border border-black receipt-font">
+        <thead>
+            <tr class="text-[11px] font-bold text-black border-b border-black print:text-[9pt]">
+                <th class="border-l border-black p-1 text-right">المنتج</th>
+                <th class="border-l border-black p-1 text-center w-14">السعر</th>
+                <th class="border-l border-black p-1 text-center w-12">كمية</th>
+                <th class="p-1 text-left w-20">الإجمالي</th>
+            </tr>
+        </thead>
+        <tbody class="text-sm leading-snug print:text-[11pt]">
+            @foreach($invoice->items as $item)
+                @php
+                    $lineTotal = $item->quantity * $item->unit_price;
+                @endphp
+                <tr class="border-b border-black">
+                    <td class="border-l border-black p-1 break-words">{{ $item->product->name }}</td>
+                    <td class="border-l border-black p-1 text-center tabular-nums font-semibold">{{ $item->unit_price }}</td>
+                    <td class="border-l border-black p-1 text-center tabular-nums font-semibold">{{ $item->quantity }}</td>
+                    <td class="p-1 text-left tabular-nums font-semibold">{{ number_format($lineTotal, 2) }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</section>
 
                 <!-- Totals -->
-                <section class="space-y-2 text-sm mb-4 print:text-[10pt] print:space-y-1.5 print:mb-3">
-                    <div class="flex justify-between gap-3">
+                <section class="space-y-2 text-sm mb-1 print:text-[10pt] print:space-y- print:mb-">
+                    <div class="flex justify-between gap-">
                         <span class="text-gray-600">إجمالي الكمية</span>
                         <span class="font-semibold tabular-nums">{{ $totalQuantity }}</span>
                     </div>
@@ -84,14 +89,14 @@
 
 
 
-                <footer class="text-center border-t border-dotted border-zinc-400 pt-4 print:pt-3">
+                <footer class="text-center border-t border-dotted border-zinc-400 pt-1 print:pt-1">
                     <p class="text-sm font-bold text-gray-900 tracking-wide print:text-[11pt]">شكراً لكم</p>
                     <p class="text-[10px] text-gray-500 mt-1 print:text-[8pt]">Thank you</p>
                 </footer>
             </article>
 
             <!-- Actions (screen only) -->
-            <div class="no-print flex flex-col gap-4 mt-8">
+            <div class="no-print flex flex-col gap-4 mt-5">
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
                     <a href="{{ route('customerAccountStatement.index', $customer->id) }}"
                        class="flex items-center justify-center gap-2 bg-zinc-700 text-white px-6 py-3 rounded-xl hover:bg-zinc-800 transition-colors shadow-md text-sm font-semibold">
