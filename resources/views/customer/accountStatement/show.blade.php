@@ -173,17 +173,34 @@
             }
 
             /* ضمان ظهور الـ border في الطباعة */
-            table {
-                border-collapse: collapse !important;
-            }
-            thead {
-                display: table-row-group !important;
-            }
-            table td,
-            table th {
-                border: 0.5mm solid black !important;
-                padding: 3px 5px !important;
-            }
+        table {
+            width: 100%;
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+            border: 2px solid #000 !important;
+        }
+
+        th,
+        td {
+            padding: 4px !important;
+
+            border-right: 0.5mm solid #000 !important;
+            border-bottom: 0.5mm solid #000 !important;
+        }
+
+        tr:last-child td {
+            border-bottom: 0 !important;
+        }
+
+        th:last-child,
+        td:last-child {
+            border-right: 0 !important;
+        }
+
+        thead {
+            display: table-row-group !important;
+        }
+
         }
     </style>
 
