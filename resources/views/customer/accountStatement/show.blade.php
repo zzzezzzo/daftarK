@@ -6,19 +6,19 @@
     <div id="print-area"
          class="thermal-receipt-root min-h-screen bg-zinc-200 py-6 px-3 print:bg-white print:py-0 print:min-h-0 dark:bg-zinc-950">
         <div class="max-w-[22rem] mx-auto w-full print:w-full print:max-w-none print:mx-0">
-            <!-- Thermal receipt paper — screen: narrow card; print: full paper width -->
+
             <article
                 class="thermal-receipt-paper bg-white text-gray-900 shadow-xl rounded-sm px-5 py-1 border border-zinc-200/80 print:shadow-none print:border-0 print:rounded-none receipt-font">
 
                 <!-- Store header -->
                 <header class="text-center border-b border-dotted border-zinc-400 pb-4 mb-1 print:pb-3 print:mb-3">
                     <h1 class="text-xl font-bold tracking-tight text-gray-900 print:text-[15pt] print:leading-tight">محل ابو يزيد</h1>
-                    <p class="text-xs text-gray-600  leading-relaxed print:text-[10pt]">مشتول السوق</p>
+                    <p class="text-xs text-gray-600 leading-relaxed print:text-[10pt]">مشتول السوق</p>
                     <p class="text-xs text-gray-600 print:text-[10pt]">01270042606</p>
                 </header>
 
                 <!-- Transaction meta -->
-                <section class="text-xs text-gray-700  mb-1 border-b border-dotted border-zinc-400 pb-4 print:text-[10pt] print:space-y-1.5  print:pb-3">
+                <section class="text-xs text-gray-700 mb-1 border-b border-dotted border-zinc-400 pb-4 print:text-[10pt] print:space-y-1.5 print:pb-3">
                     <div class="flex justify-between gap-3">
                         <span class="text-gray-500">فاتورة</span>
                         <span class="font-semibold tabular-nums">#{{ $invoice->invoice_number }}</span>
@@ -40,36 +40,35 @@
                 </section>
 
                 <!-- Line items -->
-               <section class="mb-4 border-b border-dotted border-zinc-400 pb-4 print:mb-3 print:pb-3">
-    <!-- استخدام border-black و border-collapse لضمان ظهور الخطوط بوضوح كما في الصورة -->
-    <table class="w-full text-right border-collapse border border-black receipt-font">
-        <thead>
-            <tr class="text-[11px] font-bold text-black border-b border-black print:text-[9pt]">
-                <th class="border-l border-black p-1 text-right">المنتج</th>
-                <th class="border-l border-black p-1 text-center w-14">السعر</th>
-                <th class="border-l border-black p-1 text-center w-12">كمية</th>
-                <th class="p-1 text-left w-20">الإجمالي</th>
-            </tr>
-        </thead>
-        <tbody class="text-sm leading-snug print:text-[11pt]">
-            @foreach($invoice->items as $item)
-                @php
-                    $lineTotal = $item->quantity * $item->unit_price;
-                @endphp
-                <tr class="border-b border-black">
-                    <td class="border-l border-black p-1 break-words">{{ $item->product->name }}</td>
-                    <td class="border-l border-black p-1 text-center tabular-nums font-semibold">{{ $item->unit_price }}</td>
-                    <td class="border-l border-black p-1 text-center tabular-nums font-semibold">{{ $item->quantity }}</td>
-                    <td class="p-1 text-left tabular-nums font-semibold">{{ number_format($lineTotal, 2) }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</section>
+                <section class="mb-4 border-b border-dotted border-zinc-400 pb-4 print:mb-3 print:pb-3">
+                    <table class="w-full text-right border-collapse border border-gray-700 receipt-font">
+                        <thead>
+                            <tr class="text-[11px] font-bold text-gray-700 border-b border-gray-700 print:text-[9pt]">
+                                <th class="border-l border-gray-700 p-1 text-right">المنتج</th>
+                                <th class="border-l border-gray-700 p-1 text-center w-14">السعر</th>
+                                <th class="border-l border-gray-700 p-1 text-center w-12">كمية</th>
+                                <th class="p-1 text-left w-20">الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm leading-snug print:text-[11pt]">
+                            @foreach($invoice->items as $item)
+                                @php
+                                    $lineTotal = $item->quantity * $item->unit_price;
+                                @endphp
+                                <tr class="border-b border-gray-700">
+                                    <td class="border-l text-[15px] font-bold border-gray-700 p-1 break-words">{{ $item->product->name }}</td>
+                                    <td class="border-l border-gray-700 p-1 text-center tabular-nums font-semibold">{{ $item->unit_price }}</td>
+                                    <td class="border-l border-gray-700 p-1 text-center tabular-nums font-semibold">{{ $item->quantity }}</td>
+                                    <td class="p-1 text-left tabular-nums font-semibold">{{ number_format($lineTotal, 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </section>
 
                 <!-- Totals -->
-                <section class="space-y-2 text-sm mb-1 print:text-[10pt] print:space-y- print:mb-">
-                    <div class="flex justify-between gap-">
+                <section class="space-y-2 text-sm mb-1 print:text-[10pt] print:space-y-1 print:mb-1">
+                    <div class="flex justify-between gap-3">
                         <span class="text-gray-600">إجمالي الكمية</span>
                         <span class="font-semibold tabular-nums">{{ $totalQuantity }}</span>
                     </div>
@@ -87,12 +86,11 @@
                     </div>
                 </section>
 
-
-
                 <footer class="text-center border-t border-dotted border-zinc-400 pt-1 print:pt-1">
                     <p class="text-sm font-bold text-gray-900 tracking-wide print:text-[11pt]">شكراً لكم</p>
                     <p class="text-[10px] text-gray-500 mt-1 print:text-[8pt]">Thank you</p>
                 </footer>
+
             </article>
 
             <!-- Actions (screen only) -->
@@ -116,23 +114,23 @@
                     </button>
                 </div>
             </div>
+
         </div>
     </div>
 
     <style>
-        /* Readable monospace like thermal printers */
         .receipt-font {
             font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
         }
 
         @media print {
-            /*
-             * Override resources/css/app.css print rules that force A4 landscape and
-             * position:absolute + max-height on #print-area (causes tiny receipt in corner).
-             */
             @page {
                 size: auto;
                 margin: 2mm;
+            }
+            /* إخفاء الأزرار */
+            .no-print  , nav{
+                display: none !important;
             }
 
             #print-area.thermal-receipt-root {
@@ -144,6 +142,7 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 min-height: 0 !important;
+                height: auto !important;
                 background: #fff !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -155,13 +154,35 @@
                 overflow: visible !important;
             }
 
+            #print-area.thermal-receipt-root > div {
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: none !important;
+                width: 100% !important;
+            }
+
             #print-area.thermal-receipt-root .thermal-receipt-paper {
                 width: 100% !important;
                 max-width: none !important;
                 margin: 0 !important;
                 padding: 3mm 4mm !important;
                 box-sizing: border-box !important;
+                height: auto !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            /* ضمان ظهور الـ border في الطباعة */
+            table {
+                border-collapse: collapse !important;
+            }
+
+            table td,
+            table th {
+                border: 1.5px dotted black !important;
+                padding: 3px 5px !important;
             }
         }
     </style>
+
 </x-app-layout>
