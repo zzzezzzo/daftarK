@@ -41,29 +41,61 @@
 
                 <!-- Line items -->
                 <section class="mb-4 border-b border-dotted border-zinc-400 pb-4 print:mb-3 print:pb-3">
-                    <table class="w-full text-right border-collapse border border-gray-700 receipt-font">
-                        <thead>
-                            <tr class="text-[11px] font-bold text-gray-700 border-b border-gray-700 print:text-[9pt]">
-                                <th class="border-l border-gray-700 p-1 text-right">المنتج</th>
-                                <th class="border-l border-gray-700 p-1 text-center w-14">السعر</th>
-                                <th class="border-l border-gray-700 p-1 text-center w-12">كمية</th>
-                                <th class="p-1 text-left w-20">الإجمالي</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm leading-snug print:text-[11pt]">
-                            @foreach($invoice->items as $item)
-                                @php
-                                    $lineTotal = $item->quantity * $item->unit_price;
-                                @endphp
-                                <tr class="border-b border-gray-700">
-                                    <td class="border-l text-[15px] font-bold border-gray-700 p-1 break-words">{{ $item->product->name }}</td>
-                                    <td class="border-l border-gray-700 p-1 text-center tabular-nums font-semibold">{{ $item->unit_price }}</td>
-                                    <td class="border-l border-gray-700 p-1 text-center tabular-nums font-semibold">{{ $item->quantity }}</td>
-                                    <td class="p-1 text-left tabular-nums font-semibold">{{ number_format($lineTotal, 2) }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <!-- Table Header -->
+                    <div class="grid grid-cols-4 border border-black text-[11px] font-bold text-gray-700 print:text-[9pt]">
+                        
+                        <div class="border-l border-black p-1 text-right">
+                            المنتج
+                        </div>
+                        <div class="border-l border-black p-1 text-center">
+                            السعر
+                        </div>
+                        <div class="border-l border-black p-1 text-center">
+                            الكمية
+                        </div>
+
+                        <div class="p-1 text-left">
+                            الإجمالي
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div class="border-r border-l border-b border-black">
+
+                        @foreach($invoice->items as $item)
+
+                            @php
+                                $lineTotal = $item->quantity * $item->unit_price;
+                            @endphp
+
+                            <div class="grid grid-cols-4 text-sm print:text-[11pt] border-b border-black last:border-b-0">
+
+                                <!-- Product -->
+                                <div class="border-l border-black p-1 text-[15px] font-bold break-words">
+                                    {{ $item->product->name }}
+                                </div>
+
+                                <!-- Price -->
+                                <div class="border-l border-black p-1 text-center tabular-nums font-semibold">
+                                    {{ $item->unit_price }}
+                                </div>
+
+                                <!-- Quantity -->
+                                <div class="border-l border-black p-1 text-center tabular-nums font-semibold">
+                                    {{ $item->quantity }}
+                                </div>
+
+                                <!-- Total -->
+                                <div class="p-1 text-left tabular-nums font-semibold">
+                                    {{ number_format($lineTotal, 2) }}
+                                </div>
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+
                 </section>
 
                 <!-- Totals -->
@@ -172,36 +204,6 @@
                 border: none !important;
             }
 
-            /* ضمان ظهور الـ border في الطباعة */
-        table {
-            width: 100%;
-            border-collapse: collapse !important;
-            border-spacing: 0 !important;
-            border: 2px solid #000 !important;
-        }
-
-        th,
-        td {
-            padding: 4px !important;
-
-            border-right: 0.5mm solid #000 !important;
-            border-bottom: 0.5mm solid #000 !important;
-        }
-
-        tr:last-child td {
-            border-bottom: 0 !important;
-        }
-
-        th:last-child,
-        td:last-child {
-            border-right: 0 !important;
-        }
-
-        thead {
-            display: table-row-group !important;
-        }
-
-        }
     </style>
 
 </x-app-layout>
