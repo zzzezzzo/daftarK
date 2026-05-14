@@ -176,10 +176,12 @@
             table {
                 border-collapse: collapse !important;
             }
-
+            thead {
+                display: table-row-group !important;
+            }
             table td,
             table th {
-                border: 1.5px dotted black !important;
+                border: 0.5mm solid black !important;
                 padding: 3px 5px !important;
             }
         }
