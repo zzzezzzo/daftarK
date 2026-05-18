@@ -56,7 +56,7 @@ class accountStatement extends Controller
             }
         }
         
-        $invoices = $invoices->latest('date')->get();
+        $invoices = $invoices->orderBy('created_at', 'desc')->get();
         $remaining_amount = $invoices->sum('Remaining_amount');
         return view('supplier.accountStatement.index' ,compact('supplier','invoices' ,'remaining_amount'));
     }

@@ -54,7 +54,7 @@ class accountStatementController extends Controller
             }
         }
         
-        $invoices = $invoices->latest('date')->paginate(20);
+        $invoices = $invoices->orderBy('created_at', 'desc')->paginate(20);
         $remaining_amount = $invoices->sum('remining_amount');
         return view('customer.accountStatement.index', compact('customer','invoices', 'remaining_amount'));
     }
