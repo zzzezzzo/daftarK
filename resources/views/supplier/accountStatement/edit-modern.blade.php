@@ -1,17 +1,17 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
         <div class="max-w-5xl mx-auto">
             <!-- Header Section -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-6">
-                <div class="bg-gradient-to-r from-yellow-600 to-orange-600 p-6 text-white">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur">
                                 <i class="bi bi-pencil-square text-2xl"></i>
                             </div>
                             <div>
-                                <h1 class="text-2xl font-bold">تعديل فاتورة المورد</h1>
-                                <p class="text-yellow-100 text-sm">فاتورة رقم: {{ $invoice->invoice_number }} | المورد: {{ $supplier->name }}</p>
+                                <h1 class="text-2xl font-bold">تعديل الفاتورة</h1>
+                                <p class="text-blue-100 text-sm">فاتورة رقم: {{ $invoice->invoice_number }} | المورد: {{ $supplier->name }}</p>
                             </div>
                         </div>
                         <a href="{{ route('accountStatement.index', $supplier->id) }}" 
@@ -44,19 +44,19 @@
             @endif
 
             <!-- Supplier Info Card -->
-            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-yellow-200 dark:border-gray-500 mb-6">
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-blue-200 dark:border-gray-500 mb-6">
                 <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/20 rounded-xl flex items-center justify-center">
-                        <i class="bi bi-building text-2xl text-yellow-600"></i>
+                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+                        <i class="bi bi-building text-2xl text-blue-600"></i>
                     </div>
                     <div>
                         <h3 class="text-xl font-bold text-gray-800 dark:text-white">{{ $supplier->name }}</h3>
                         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                            <span class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-full text-sm font-medium">
+                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-sm font-medium">
                                 كود: {{ $supplier->code }}
                             </span>
                             @if($supplier->phone)
-                                <span class="px-3 py-1 bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 rounded-full text-sm font-medium">
+                                <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-full text-sm font-medium">
                                     {{ $supplier->phone }}
                                 </span>
                             @endif
@@ -77,11 +77,11 @@
                     @method('PUT')
                     
                     <!-- Invoice Info Section -->
-                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-yellow-200 dark:border-gray-500 mb-6">
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-blue-200 dark:border-gray-500 mb-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="space-y-2">
                                 <label for="date" class="block text-gray-700 dark:text-gray-300 font-semibold items-center gap-2">
-                                    <i class="bi bi-calendar text-yellow-600"></i>
+                                    <i class="bi bi-calendar text-blue-600"></i>
                                     تاريخ الفاتورة
                                 </label>
                                 <div class="relative">
@@ -89,7 +89,7 @@
                                         type="date" 
                                         name="date" 
                                         value="{{ old('date') ?? $invoice->date }}"
-                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-700 dark:text-white transition-all"
+                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
                                         required>
                                     <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                                         <i class="bi bi-calendar"></i>
@@ -99,13 +99,13 @@
                            
                             <div class="space-y-2">
                                 <label for="type" class="block text-gray-700 dark:text-gray-300 font-semibold items-center gap-2">
-                                    <i class="bi bi-tag text-yellow-600"></i>
+                                    <i class="bi bi-tag text-blue-600"></i>
                                     نوع الفاتورة
                                 </label>
                                 <div class="relative">
                                     <select 
                                         name="type" 
-                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-700 dark:text-white transition-all appearance-none"
+                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all appearance-none"
                                         required>
                                         <option value="purchase" {{ $invoice->type == 'purchase' ? 'selected' : '' }}>شراء</option>
                                         <option value="return" {{ $invoice->type == 'return' ? 'selected' : '' }}>مرتجع</option>
@@ -118,13 +118,13 @@
 
                             <div class="space-y-2">
                                 <label for="states" class="block text-gray-700 dark:text-gray-300 font-semibold items-center gap-2">
-                                    <i class="bi bi-flag text-yellow-600"></i>
+                                    <i class="bi bi-flag text-blue-600"></i>
                                     حالة الفاتورة
                                 </label>
                                 <div class="relative">
                                     <select 
                                         name="states" 
-                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-700 dark:text-white transition-all appearance-none"
+                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all appearance-none"
                                         required>
                                         <option value="unpaid" {{ $invoice->states == 'unpaid' ? 'selected' : '' }}>غير مدفوعة</option>
                                         <option value="paid" {{ $invoice->states == 'paid' ? 'selected' : '' }}>مدفوعة بالكامل</option>
@@ -139,11 +139,11 @@
                     </div>
 
                     <!-- Products Section -->
-                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-yellow-200 dark:border-gray-500 mb-6">
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-blue-200 dark:border-gray-500 mb-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                                <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/20 rounded-xl flex items-center justify-center">
-                                    <i class="bi bi-box text-yellow-700"></i>
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+                                    <i class="bi bi-box text-blue-700"></i>
                                 </div>
                                 تفاصيل المنتجات
                             </h3>
@@ -170,13 +170,13 @@
                                 <!-- Product Name -->
                                 <div class="relative">
                                     <label class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="bi bi-search text-yellow-600"></i>
+                                        <i class="bi bi-search text-blue-600"></i>
                                         اسم المنتج
                                     </label>
                                     <div class="relative">
                                         <input type="text"
                                                id="productSearch"
-                                               class="w-full p-4 pr-12 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                                               class="w-full p-4 pr-12 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
                                                placeholder="ابحث عن منتج..."
                                                autocomplete="off">
                                         <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -193,13 +193,13 @@
                                 <!-- Quantity -->
                                 <div>
                                     <label class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="bi bi-123 text-yellow-600"></i>
+                                        <i class="bi bi-123 text-blue-600"></i>
                                         الكمية
                                     </label>
                                     <div class="relative">
                                         <input type="number"
                                                id="productQty"
-                                               class="w-full p-4 pr-12 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                                               class="w-full p-4 pr-12 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
                                                value="1"
                                                min="1">
                                         <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -211,7 +211,7 @@
                                 <!-- Price (Readonly) -->
                                 <div>
                                     <label class="flex items-center gap-2 mb-3 font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="bi bi-currency-dollar text-yellow-600"></i>
+                                        <i class="bi bi-currency-dollar text-blue-600"></i>
                                         سعر الشراء
                                     </label>
                                     <div class="relative">
@@ -247,9 +247,9 @@
                             <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                                 <div class="flex items-center justify-between">
                                     <h4 class="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                        <i class="bi bi-list-ul text-yellow-600"></i>
+                                        <i class="bi bi-list-ul text-blue-600"></i>
                                         المنتجات المضافة
-                                        <span id="productsCount" class="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded-full text-xs font-bold">0</span>
+                                        <span id="productsCount" class="bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-1 rounded-full text-xs font-bold">0</span>
                                     </h4>
                                 </div>
                             </div>
@@ -295,11 +295,11 @@
                     <div id="productsInputs"></div>
 
                     <!-- Payment Section -->
-                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-yellow-200 dark:border-gray-500">
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-blue-200 dark:border-gray-500">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                                <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/20 rounded-xl flex items-center justify-center">
-                                    <i class="bi bi-credit-card text-yellow-700"></i>
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+                                    <i class="bi bi-credit-card text-blue-700"></i>
                                 </div>
                                 بيانات الدفع
                             </h3>
@@ -308,7 +308,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label for="paid_amount" class="block text-gray-700 dark:text-gray-300 font-semibold items-center gap-2">
-                                    <i class="bi bi-cash text-yellow-600"></i>
+                                    <i class="bi bi-cash text-blue-600"></i>
                                     المبلغ المدفوع
                                 </label>
                                 <div class="relative">
@@ -317,7 +317,7 @@
                                         step="0.01"
                                         name="paid_amount" 
                                         value="{{ old('paid_amount', $invoice->paid_amount) }}"
-                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-700 dark:text-white transition-all"
+                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
                                         placeholder="0.00">
                                     <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                                         <i class="bi bi-cash"></i>
@@ -327,13 +327,13 @@
                             
                             <div class="space-y-2">
                                 <label for="payment_method" class="block text-gray-700 dark:text-gray-300 font-semibold items-center gap-2">
-                                    <i class="bi bi-credit-card text-yellow-600"></i>
+                                    <i class="bi bi-credit-card text-blue-600"></i>
                                     طريقة الدفع
                                 </label>
                                 <div class="relative">
                                     <select 
                                         name="payment_method" 
-                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-700 dark:text-white transition-all appearance-none">
+                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all appearance-none">
                                         <option value="cash" {{ $invoice->payment_method == 'cash' ? 'selected' : '' }}>نقدي</option>
                                         <option value="bank" {{ $invoice->payment_method == 'bank' ? 'selected' : '' }}>تحويل بنكي</option>
                                         <option value="check" {{ $invoice->payment_method == 'check' ? 'selected' : '' }}>شيك</option>
@@ -345,13 +345,13 @@
                             </div>
                             <div class="space-y-2">
                                 <label for="states" class="block text-gray-700 dark:text-gray-300 font-semibold items-center gap-2">
-                                    <i class="bi bi-flag text-yellow-600"></i>
+                                    <i class="bi bi-flag text-blue-600"></i>
                                     حالة الفاتورة
                                 </label>
                                 <div class="relative">
                                     <select 
                                         name="states" 
-                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-700 dark:text-white transition-all appearance-none"
+                                        class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all appearance-none"
                                         required>
                                         <option value="unpaid">غير مدفوعة</option>
                                         <option value="paid">مدفوعة بالكامل</option>
@@ -366,11 +366,11 @@
                     </div>
 
                     <!-- Total Section -->
-                    <div class="bg-gradient-to-r from-yellow-600 to-orange-600 p-6 rounded-xl text-white">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-xl text-white">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-xl font-bold mb-1">المجموع الإجمالي</h3>
-                                <p class="text-yellow-100 text-sm">مجموع قيمة الفاتورة</p>
+                                <p class="text-blue-100 text-sm">مجموع قيمة الفاتورة</p>
                             </div>
                             <div class="text-right">
                                 <div class="text-3xl font-bold">
@@ -383,7 +383,7 @@
                     <!-- Submit Button -->
                     <div class="flex justify-center">
                         <button type="submit" 
-                                class="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-3">
+                                class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-3">
                             <i class="bi bi-check-circle text-xl"></i>
                             <span>تحديث الفاتورة</span>
                         </button>

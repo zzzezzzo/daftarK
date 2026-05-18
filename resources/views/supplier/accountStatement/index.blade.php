@@ -3,7 +3,7 @@
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-6">
-                <div class="bg-gradient-to-r from-orange-600 to-red-600 p-6 text-white">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur">
@@ -11,7 +11,7 @@
                             </div>
                             <div>
                                 <h1 class="text-2xl font-bold">كشف حساب المورد</h1>
-                                <p class="text-orange-100 text-sm">{{ $supplier->name }}</p>
+                                <p class="text-blue-100 text-sm">{{ $supplier->name }}</p>
                             </div>
                         </div>
                         <div class="flex gap-2">
@@ -39,12 +39,12 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-xl flex items-center justify-center">
-                            <i class="bi bi-arrow-down-circle text-orange-600 text-xl"></i>
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+                            <i class="bi bi-arrow-down-circle text-blue-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">إجمالي المشتريات</p>
-                            <p class="text-xl font-bold text-orange-600 dark:text-orange-400">{{ number_format($invoices->where('type', 'purchase')->sum('total_amount'), 2) }} ج.م</p>
+                            <p class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ number_format($invoices->where('type', 'purchase')->sum('total_amount'), 2) }} ج.م</p>
                         </div>
                     </div>
                 </div>
@@ -110,7 +110,7 @@
                                         step="0.01"
                                         min="0.01"
                                         required
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                         placeholder="0.00">
                                 </div>
                             </div>
@@ -122,7 +122,7 @@
                                     id="paymentDescription" 
                                     name="description" 
                                     rows="2"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white resize-none"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white resize-none"
                                     placeholder="وصف الدفعة"></textarea>
                             </div>
                         </div>
@@ -135,7 +135,7 @@
                             </button>
                             <button 
                                 type="submit" 
-                                class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                                 دفع
                             </button>
                         </div>
@@ -148,7 +148,7 @@
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-                            <i class="bi bi-list-ul text-orange-600"></i>
+                            <i class="bi bi-list-ul text-blue-600"></i>
                             سجل الفواتير
                         </h3>
                     </div>
@@ -163,9 +163,9 @@
                                     name="search" 
                                     value="{{ request('search') }}" 
                                     placeholder="ابحث في الفواتير..." 
-                                    class="w-full pr-12 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white transition-all">
+                                    class="w-full pr-12 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all">
                             </div>
-                            <select name="filter" class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
+                            <select name="filter" class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                                 <option value="">جميع الفواتير</option>
                                 <option value="paid" {{ request('filter') == 'paid' ? 'selected' : '' }}>المدفوعة فقط</option>
                                 <option value="unpaid" {{ request('filter') == 'unpaid' ? 'selected' : '' }}>غير المدفوعة</option>
@@ -173,7 +173,7 @@
                                 <option value="purchase" {{ request('filter') == 'purchase' ? 'selected' : '' }}>فواتير الشراء فقط</option>
                                 <option value="return" {{ request('filter') == 'return' ? 'selected' : '' }}>فواتير المرتجعات فقط</option>
                             </select>
-                            <button type="submit" class="px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+                            <button type="submit" class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                                 <i class="bi bi-search"></i>
                                 بحث
                             </button>
@@ -186,49 +186,49 @@
                             <tr>
                                 <th class="p-4 text-right font-semibold">
                                     <div class="flex items-center gap-2">
-                                        <i class="bi bi-calendar text-orange-600"></i>
+                                        <i class="bi bi-calendar text-blue-600"></i>
                                         التاريخ
                                     </div>
                                 </th>
                                 <th class="p-4 text-right font-semibold">
                                     <div class="flex items-center gap-2">
-                                        <i class="bi bi-receipt text-orange-600"></i>
+                                        <i class="bi bi-receipt text-blue-600"></i>
                                         رقم الفاتورة
                                     </div>
                                 </th>
                                 <th class="p-4 text-right font-semibold">
                                     <div class="flex items-center gap-2">
-                                        <i class="bi bi-tag text-orange-600"></i>
+                                        <i class="bi bi-tag text-blue-600"></i>
                                         النوع
                                     </div>
                                 </th>
                                 <th class="p-4 text-right font-semibold">
                                     <div class="flex items-center gap-2">
-                                        <i class="bi bi-cash-stack text-orange-600"></i>
+                                        <i class="bi bi-cash-stack text-blue-600"></i>
                                         المبلغ الكلي
                                     </div>
                                 </th>
                                 <th class="p-4 text-right font-semibold">
                                     <div class="flex items-center gap-2">
-                                        <i class="bi bi-cash text-orange-600"></i>
+                                        <i class="bi bi-cash text-blue-600"></i>
                                         المبلغ المدفوع
                                     </div>
                                 </th>
                                 <th class="p-4 text-right font-semibold">
                                     <div class="flex items-center gap-2">
-                                        <i class="bi bi-cash text-orange-600"></i>
+                                        <i class="bi bi-cash text-blue-600"></i>
                                         المبلغ المتبقي
                                     </div>
                                 </th>
                                 <th class="p-4 text-right font-semibold">
                                     <div class="flex items-center gap-2">
-                                        <i class="bi bi-info-circle text-orange-600"></i>
+                                        <i class="bi bi-info-circle text-blue-600"></i>
                                         الحالة
                                     </div>
                                 </th>
                                 <th class="p-4 text-center font-semibold">
                                     <div class="flex items-center gap-2 justify-center">
-                                        <i class="bi bi-gear text-orange-600"></i>
+                                        <i class="bi bi-gear text-blue-600"></i>
                                         إجراءات
                                     </div>
                                 </th>
@@ -236,11 +236,11 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach($invoices as $invoice)
-                                <tr class="hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors @if($invoice->type == 'return') bg-red-50/50 dark:bg-red-900/10 @endif">
+                                <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors @if($invoice->type == 'return') bg-red-50/50 dark:bg-red-900/10 @endif">
                                     <td class="p-4 text-gray-600 dark:text-gray-400 font-medium">{{ $invoice->date }}</td>
                                     <td class="p-4">
                                         <a href="{{ route('accountStatement.show', [$supplier->id, $invoice->id]) }}" 
-                                           class="text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 font-semibold hover:underline">
+                                           class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold hover:underline">
                                             {{ $invoice->invoice_number }}
                                         </a>
                                     </td>
@@ -275,8 +275,13 @@
                                     </td>
                                     <td class="p-4">
                                         <div class="flex items-center justify-center gap-2">
-                                            <a href="{{ route('accountStatement.edit',[$supplier->id, $invoice->id]) }}" 
+                                            <a href="{{ route('accountStatement.show', [$supplier->id, $invoice->id]) }}"
                                                class="p-2 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800/30 transition-colors"
+                                               title="عرض">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{{ route('accountStatement.edit',[$supplier->id, $invoice->id]) }}" 
+                                               class="p-2 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/30 transition-colors"
                                                title="تعديل">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>

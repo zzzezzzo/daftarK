@@ -245,7 +245,8 @@ class accountStatement extends Controller
 
                 // إذا أخذت كاش من المورد مقابل المرتجع، نسجل حركة سحب من حساب المورد للصندوق
                 if ($paid > 0) {
-                    $this->createSupplierCashBoxTransaction($paid, $invoice, $supplier, $request);
+                    throw new \exception('مش مسوح تكتب حاجه ف خانه الدفع!!');
+                    // $this->createSupplierCashBoxTransaction($paid, $invoice, $supplier, $request);
                 }
             } else {
                 // حالة الشراء العادية
