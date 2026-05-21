@@ -25,6 +25,7 @@ class accountStatementController extends Controller
     public function index($id, Request $request){
         $customer= Customer::findOrFail($id);
         $invoices = $customer->invoices();
+
         
         // Add search functionality
         if($request->filled('search')){
@@ -54,8 +55,10 @@ class accountStatementController extends Controller
             }
         }
         
-        $invoices = $invoices->orderBy('created_at', 'desc')->paginate(20);
+        // $remaining_amount = $invoices->sum('remining_amount');
+        
         $remaining_amount = $invoices->sum('remining_amount');
+        $invoices = $invoices->orderBy('created_at', 'desc')->paginate(20);
         return view('customer.accountStatement.index', compact('customer','invoices', 'remaining_amount'));
     }
 
