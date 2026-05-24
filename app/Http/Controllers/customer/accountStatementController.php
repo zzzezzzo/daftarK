@@ -541,6 +541,7 @@ XML;
     public function show($customerId, $invoiceId){
         $customer = Customer::findOrFail($customerId);
         $invoice = CustomerInvoice::with(['items.product'])->findOrFail($invoiceId);
+        // dd($invoice->items->first()->product);
         return view('customer.accountStatement.show', compact('customer', 'invoice'));
     }
     public function store(StoreCustomerInvoiceRequest $request, $id)
@@ -587,6 +588,13 @@ XML;
                             'remining_amount' => 0,
                             'state' => 'paid',
                             'type' => 'return',
+                        ]);
+                        // create invoice item
+                        CustomerInvoiceItems::create([
+                            'customer_invoice_id' => $invoice->id,
+                            'product_id' => $request->products[0]['product_id'],
+                            'quantity' => $request->products[0]['quantity'],
+                            'unit_price' => $request->products[0]['unit_price'] ?? $request->products[0]['price'] ?? 0,
                         ]);
                         Alert::success('نجاح', 'تم إرجاع المنتجات بنجاح اسحب الرصيد من الخزنة');
                         return redirect()->route('cashBoxes.show' , $cashBox->id);
