@@ -25,8 +25,13 @@
                             <span class="font-bold tabular-nums">#{{ $invoice->invoice_number }}</span>
                         </div>
                         <div class="flex justify-between gap-2">
-                            <span class="text-zinc-600 font-medium">التاريخ</span>
-                            <span class="font-bold tabular-nums">{{ $invoice->date }}</span>
+                            <span class="text-zinc-600 font-medium">التاريخ والوقت</span>
+                            <span class="font-bold tabular-nums">
+                                {{ $invoice->date }} 
+                                <span class="text-zinc-700 font-normal mr-1">
+                                    {{ $invoice->created_at ? $invoice->created_at->format('g:i A') : '' }}
+                                </span>
+                            </span>
                         </div>
                         <div class="flex justify-between gap-2 items-start">
                             <span class="text-zinc-600 font-medium shrink-0">العميل</span>
@@ -127,31 +132,29 @@
 
     <script>
         function printThermalInvoice() {
-            // جلب كود الفاتورة فقط بدون القوائم الجانبية أو العلوية للموقع
             var printContents = document.getElementById('invoice-print-section').innerHTML;
-            
-            // فتح نافذة وهمية مؤقتة للطباعة
             var printWindow = window.open('', '_blank', 'height=600,width=400');
             
             printWindow.document.write('<html><head><title>طباعة الفاتورة</title>');
-            // تضمين خط Cairo ومكتبة الـ Tailwind داخل نافذة الطباعة لضمان التنسيق
             printWindow.document.write('<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>');
             printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">');
             
-            // إعدادات الـ CSS الصارمة الموجهة للطابعة مباشرة لمنع التقطيع لصفحات متعددة
             printWindow.document.write('<style>');
-            printWindow.document.write('body { font-family: "Cairo", sans-serif !important; margin: 0; padding: 0; background: #fff; width: 76mm; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }');
-            printWindow.document.write('@page { size: auto; margin: 0mm; }');
+            printWindow.document.write('html, body { font-family: "Cairo", sans-serif !important; margin: 0; padding: 0; background: #fff; width: 76mm; height: auto; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }');
+            printWindow.document.write('@page { size: 76mm auto; margin: 0mm; }');
+            
+            /* الحيلة السحرية لمنع Firefox من تكرار رأس الجدول المزعج */
+            printWindow.document.write('thead { display: table-row-group !important; }'); /* تحويل الرأس لمنع التكرار التلقائي */
+            printWindow.document.write('thead tr { page-break-inside: avoid !important; break-inside: avoid !important; }');
+            printWindow.document.write('tr, table, section { page-break-inside: avoid !important; break-inside: avoid !important; }');
             printWindow.document.write('<\/style>');
             
             printWindow.document.write('</head><body dir="rtl">');
-            // وضع محتوى الفاتورة وتغليفه بمقاس الرول المناسب لطابعات Xprinter
-            printWindow.document.write('<div style="width: 76mm; max-width: 76mm; padding: 5px; box-sizing: border-box;">' + printContents + '</div>');
+            printWindow.document.write('<div style="width: 76mm; max-width: 76mm; padding: 4px; box-sizing: border-box;">' + printContents + '</div>');
             printWindow.document.write('</body></html>');
             
             printWindow.document.close();
             
-            // الانتظار قليلاً حتى تكتمل معالجة الخطوط والتنسيقات ثم فتح أمر الطباعة تلقائياً
             setTimeout(function () {
                 printWindow.focus();
                 printWindow.print();
