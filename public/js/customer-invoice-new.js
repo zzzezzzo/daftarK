@@ -1,10 +1,12 @@
 let selectedProduct = null;
 let invoiceProducts = JSON.parse(localStorage.getItem("customerInvoiceProducts")) || [];
 
+// حفظ المنتجات في LocalStorage
 function saveProducts() {
     localStorage.setItem("customerInvoiceProducts", JSON.stringify(invoiceProducts));
 }
 
+// البحث وإظهار الاقتراحات أثناء الكتابة
 document.getElementById("productSearch").addEventListener("input", function () {
     const query = this.value.toLowerCase();
     const box = document.getElementById("suggestionsBox");
@@ -45,6 +47,7 @@ document.getElementById("productSearch").addEventListener("input", function () {
     box.classList.remove("hidden");
 });
 
+// عند اختيار منتج
 function selectProduct(product) {
     selectedProduct = product;
     document.getElementById("productSearch").value = product.name;
@@ -52,6 +55,7 @@ function selectProduct(product) {
     document.getElementById("suggestionsBox").classList.add("hidden");
 }
 
+// إضافة المنتج الحالي إلى الفاتورة (الليستة)
 function addProductToInvoice() {
     const qty = parseInt(document.getElementById("productQty").value, 10);
     const price = parseFloat(document.getElementById("productPrice").value);
@@ -95,14 +99,19 @@ function addProductToInvoice() {
     renderProducts();
     updateTotal();
 
+    // إعادة تعيين الحقول بعد الإضافة بنجاح لتجهيزها للمنتج التالي
     document.getElementById("productSearch").value = "";
     document.getElementById("productQty").value = "1";
     document.getElementById("productPrice").value = "";
     selectedProduct = null;
 
     showNotification("تم إضافة المنتج بنجاح", "success");
+    
+    // إعادة مؤشر الكتابة تلقائياً لخانة البحث للمنتج القادم
+    document.getElementById("productSearch").focus();
 }
 
+// عرض المنتجات في الجدول والـ Inputs المخفية للفورم
 function renderProducts() {
     const table = document.getElementById("productsTable");
     const inputs = document.getElementById("productsInputs");
@@ -144,6 +153,7 @@ function renderProducts() {
     });
 }
 
+// حذف منتج من الفاتورة
 function removeProduct(index) {
     invoiceProducts.splice(index, 1);
     saveProducts();
@@ -151,6 +161,7 @@ function removeProduct(index) {
     updateTotal();
 }
 
+// تحديث إجمالي الفاتورة والكميات
 function updateTotal() {
     let total = 0;
     invoiceProducts.forEach((item) => {
@@ -165,6 +176,7 @@ function updateTotal() {
     }
 }
 
+// جلب السعر بناءً على فئة العميل
 function getPriceByCustomerType(product) {
     if (window.customerType === "trade") {
         return product.price_trade;
@@ -178,6 +190,7 @@ function getPriceByCustomerType(product) {
     return product.price_base;
 }
 
+// إظهار الإشعارات الملونة
 function showNotification(message, type) {
     const notification = document.createElement("div");
     notification.className = `
@@ -192,6 +205,7 @@ function showNotification(message, type) {
     }, 3000);
 }
 
+// إخفاء صندوق الاقتراحات عند الضغط في أي مكان خارج الحقول
 document.addEventListener("click", function (e) {
     const box = document.getElementById("suggestionsBox");
     if (box && !e.target.closest("#productSearch") && !e.target.closest("#suggestionsBox")) {
@@ -199,10 +213,12 @@ document.addEventListener("click", function (e) {
     }
 });
 
+// الأحداث عند تحميل الصفحة بالكامل
 document.addEventListener("DOMContentLoaded", function () {
     renderProducts();
     updateTotal();
 
+    // التحكم في إرسال الحفظ النهائي للفورم (زر الحفظ الأساسي للفاتورة)
     const form = document.querySelector("form");
     if (form) {
         form.addEventListener("submit", function (e) {
@@ -212,6 +228,58 @@ document.addEventListener("DOMContentLoaded", function () {
                 return false;
             }
             return true;
+        });
+    }
+
+    // --- حـل مشـكلة سـكانر البـاركود والتحويل للكمية والسعر ---
+    const searchInput = document.getElementById("productSearch");
+    const qtyInput = document.getElementById("productQty");
+    const priceInput = document.getElementById("productPrice");
+
+    // 1. عند الضغط على Enter في خانة البحث (الاسكانر)
+    if (searchInput) {
+        searchInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // منع حفظ الفاتورة
+
+                const query = this.value.trim().toLowerCase();
+                if (!query) return;
+
+                // البحث عن تطابق تام لكود الباركود
+                const exactMatch = window.products.find(p => p.code.toLowerCase() === query);
+
+                if (exactMatch) {
+                    selectProduct(exactMatch); // تعبئة البيانات والسعر بناء على نوع العميل
+                    
+                    // تحويل مؤشر الماوس تلقائياً لخانة الكمية وعمل تظليل (Select) للرقم الحالي لتعديله فوراً
+                    if (qtyInput) {
+                        qtyInput.focus();
+                        qtyInput.select(); 
+                    }
+                } else {
+                    showNotification("كود المنتج غير صحيح أو غير مسجل", "error");
+                }
+            }
+        });
+    }
+
+    // 2. عند الضغط على Enter في خانة الكمية -> يضيف المنتج لليستة بدلاً من إرسال الفورم
+    if (qtyInput) {
+        qtyInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // منع حفظ الفاتورة
+                addProductToInvoice(); // إضافة لليستة
+            }
+        });
+    }
+
+    // 3. عند الضغط على Enter في خانة السعر (لو حبيت تعدله يدوي) -> يضيف المنتج لليستة
+    if (priceInput) {
+        priceInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // منع حفظ الفاتورة
+                addProductToInvoice(); // إضافة لليستة
+            }
         });
     }
 });

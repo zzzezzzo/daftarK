@@ -49,9 +49,8 @@
             width: 210mm;
             margin: 0 auto;
             display: grid;
-            /* عرض الاستيكر 40mm */
             grid-template-columns: repeat(auto-fill, 40mm);
-            /* gap: 3mm; */
+            gap: 5mm; /* إضافة مسافة بسيطة بين الاستيكرات في العرض العادي */
             justify-content: start;
         }
         @media (max-width: 640px) {
@@ -62,7 +61,7 @@
             height: 25mm;
             background: #fff;
             border-radius: 2mm;
-            padding: 3mm;
+            padding: 2mm;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -70,13 +69,16 @@
             overflow: hidden;
             page-break-inside: avoid;
             break-inside: avoid;
+            border: 1px dashed #ccc; /* إطار خفيف للمعاينة فقط */
         }
         .label-name {
             font-size: 8pt;
             line-height: 1.1;
-            margin-bottom: 2mm;
+            margin-bottom: 1mm;
             max-height: 2.2em;
             overflow: hidden;
+            text-align: center;
+            font-weight: bold;
         }
         .barcode-wrap {
             width: 100%;
@@ -85,15 +87,19 @@
             align-items: center;
             overflow: hidden;
         }
+        
+        /* --- تحسينات الـ SVG للأكواد الطويلة --- */
         .barcode-wrap svg {
-            width: 100%;
-            height: 8mm !important;
+            width: 100% !important; /* يجبر الباركود يفرش على المقاس المتاح */
+            height: 12mm !important; /* زيادة الطول قليلاً للمساعدة في القراءة */
+            shape-rendering: crispEdges; /* منع حواف الخطوط من التسييل أو الغبش */
         }
 
         .label-code {
             padding: 0 2mm;
             margin-top: 1mm;
             font-size: 7pt;
+            word-break: break-all; /* لو الكود طويل جداً كـ نص ينزل سطر جديد */
         }
         .empty {
             max-width: 210mm;
@@ -103,9 +109,11 @@
             background: #fff;
             border-radius: 12px;
         }
+        
+        /* --- إعدادات الطباعة المدققة --- */
         @media print {
             @page {
-                size: 40mm 30mm portrait; /* نفس المقاس اللي في تعريف الطابعة */
+                size: 40mm 30mm portrait; 
                 margin: 0;
             }
             body {
@@ -115,26 +123,27 @@
             }
             .toolbar { display: none !important; }
             .sheet {
-                display: block; /* نلغي الـ grid تماماً في الطباعة */
+                display: block; 
                 width: 40mm;
                 margin: 0;
             }
             .label {
                 width: 40mm;
-                height: 30mm; /* لازم يطابق تعريف الطابعة */
-                border: none; /* شيل البرور عشان ميخدش مساحة */
+                height: 30mm; /* مطابقة تامة لمقاس رول الطابعة */
+                border: none; 
                 margin: 0;
-                padding: 3mm; /* تحكم في الهامش الداخلي فقط */
-                page-break-after: always; /* مهم جداً عشان كل استيكر يبدأ في صفحة جديدة */
+                padding: 2mm 3mm; /* مساحة أمان داخلية للطباعة */
+                page-break-after: always; 
                 break-after: page;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
+                justify-content: space-between;
                 align-items: center;
                 box-sizing: border-box;
             }
-            .barcode-wrap svg{
-                width:90%;
+            .barcode-wrap svg {
+                width: 100% !important; /* ضمان استغلال كامل العرض في الاستيكر */
+                height: 12mm !important;
             }
         }
     </style>
@@ -164,7 +173,8 @@
                 <article class="label">
                     <div class="label-name">{{ $product->name }}</div>
                     <div class="barcode-wrap">
-                        {!! DNS1D::getBarcodeSVG($product->code, 'C128', 1.35, 46, '#000000', false, true) !!}
+                        {{-- تم تغيير الـ factor من 2 إلى 1.2 عشان يناسب الأكواد الطويلة بدون ما تخرج بره الاستيكر --}}
+                        {!! DNS1D::getBarcodeSVG($product->code, 'C128', 1, 50, '#000000', false, false) !!}
                     </div>
                     <div class="label-code">{{ $product->code }}</div>
                 </article>
