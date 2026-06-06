@@ -86,13 +86,12 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            padding: 0 4mm;
         }
         
         /* --- تحسينات الـ SVG للأكواد الطويلة --- */
         .barcode-wrap svg {
-            width: 85% !important; /* صغرناه سنة عشان الخطوط متلزقش في حافة الاستيكر */
-            height: 12mm !important; 
+            width: 100% !important; /* يجبر الباركود يفرش على المقاس المتاح */
+            height: 12mm !important; /* زيادة الطول قليلاً للمساعدة في القراءة */
             shape-rendering: crispEdges; /* منع حواف الخطوط من التسييل أو الغبش */
         }
 
@@ -175,7 +174,7 @@
                     <div class="label-name">{{ $product->name }}</div>
                     <div class="barcode-wrap">
                         {{-- تم تغيير الـ factor من 2 إلى 1.2 عشان يناسب الأكواد الطويلة بدون ما تخرج بره الاستيكر --}}
-                        {!! DNS1D::getBarcodeSVG($product->code, 'C128', 1, 50, '#000000', false, false) !!}
+                        {!! DNS1D::getBarcodeSVG($product->code, 'C128', 0.9, 50, '#000000', false, false) !!}
                     </div>
                     <div class="label-code">{{ $product->code }}</div>
                 </article>
