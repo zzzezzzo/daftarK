@@ -86,12 +86,13 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            padding: 0 4mm;
         }
         
         /* --- تحسينات الـ SVG للأكواد الطويلة --- */
         .barcode-wrap svg {
-            width: 100% !important; /* يجبر الباركود يفرش على المقاس المتاح */
-            height: 12mm !important; /* زيادة الطول قليلاً للمساعدة في القراءة */
+            width: 85% !important; /* صغرناه سنة عشان الخطوط متلزقش في حافة الاستيكر */
+            height: 12mm !important; 
             shape-rendering: crispEdges; /* منع حواف الخطوط من التسييل أو الغبش */
         }
 
