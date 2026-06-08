@@ -24,52 +24,21 @@ class accountStatementController extends Controller
 {
     public function index($id, Request $request){
         $customer= Customer::findOrFail($id);
-        $invoices = $customer->invoices();
+        $query = $customer->invoices();
 
-        
-        // Add search functionality
-        if($request->filled('search')){
-            $search = $request->search;
-            $invoices->where(function($q) use ($search){
-                $q->where('invoice_number', 'like', "%$search%")
-                  ->orWhere('total_amount', 'like', "%$search%")
-                  ->orWhere('paid_amount', 'like', "%$search%")
-                  ->orWhere('remining_amount', 'like', "%$search%")
-                  ->orWhere('date', 'like', "%$search%");
-            });
-        }
-        
-        // Add filter functionality
-        if($request->filled('filter')){
-            $filter = $request->filter;
-            switch($filter){
-                case 'paid':
-                    $invoices->where('state', 'paid');
-                    break;
-                case 'unpaid':
-                    $invoices->where('state', 'unpaid');
-                    break;
-                case 'partial':
-                    $invoices->where('state', 'partial');
-                    break;
-            }
-        }
-        
-        // $remaining_amount = $invoices->sum('remining_amount');
-        
-        $remaining_amount = $invoices->sum('remining_amount');
-        $invoices = $invoices->orderBy('created_at', 'desc')->paginate(20);
+        $this->applyInvoiceListFilters($query, $request);
+
+        $remaining_amount = (clone $query)->sum('remining_amount');
+        $invoices = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+
         return view('customer.accountStatement.index', compact('customer','invoices', 'remaining_amount'));
     }
 
     /**
-     * Excel export (SpreadsheetML) for one customer's invoices; respects search/filter on كشف الحساب.
+     * Search / state / date filters shared by كشف الحساب list and Excel export.
      */
-    public function exportInvoicesExcel($id, Request $request)
+    private function applyInvoiceListFilters($query, Request $request): void
     {
-        $customer = Customer::with('wallet')->findOrFail($id);
-        $query = $customer->invoices();
-
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -82,24 +51,32 @@ class accountStatementController extends Controller
         }
 
         if ($request->filled('filter')) {
-            switch ($request->filter) {
-                case 'paid':
-                    $query->where('state', 'paid');
-                    break;
-                case 'unpaid':
-                    $query->where('state', 'unpaid');
-                    break;
-                case 'partial':
-                    $query->where('state', 'partial');
-                    break;
-            }
+            match ($request->filter) {
+                'paid' => $query->where('state', 'paid'),
+                'unpaid' => $query->where('state', 'unpaid'),
+                'partial' => $query->where('state', 'partial'),
+                default => null,
+            };
         }
-        if($request->filled('from_date') && $request->filled('to_date')){
-            $query->whereBetween('date', [
-                $request->from_date,
-                $request->to_date
-            ]);
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('date', [$request->from_date, $request->to_date]);
+        } elseif ($request->filled('from_date')) {
+            $query->whereDate('date', '>=', $request->from_date);
+        } elseif ($request->filled('to_date')) {
+            $query->whereDate('date', '<=', $request->to_date);
         }
+    }
+
+    /**
+     * Excel export (SpreadsheetML) for one customer's invoices; respects search/filter on كشف الحساب.
+     */
+    public function exportInvoicesExcel($id, Request $request)
+    {
+        $customer = Customer::with('wallet')->findOrFail($id);
+        $query = $customer->invoices();
+
+        $this->applyInvoiceListFilters($query, $request);
 
         $invoices = $query->latest('date')->get();
         $xml = $this->buildSingleCustomerInvoicesSpreadsheetXml($customer, $invoices, $request);

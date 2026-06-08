@@ -230,11 +230,14 @@
                                 type="date" 
                                 name="from_date" 
                                 value="{{ request('from_date') }}"
+                                title="من تاريخ"
                                 class="xl:col-span-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                             <input 
                                 type="date" 
                                 name="to_date" 
                                 value="{{ request('to_date') }}"
+                                title="إلى تاريخ"
+                                min="{{ request('from_date') }}"
                                 class="xl:col-span-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                             <button type="submit" class="xl:col-span-1 px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                                 <i class="bi bi-search"></i>
