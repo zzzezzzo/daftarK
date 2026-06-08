@@ -81,6 +81,7 @@ Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     // customer account mangement
     Route::get('/customer/{id}/accountStatement',[accountStatementController::class, 'index'])->name('customerAccountStatement.index');
     Route::get('/customer/{id}/accountStatement/export/excel', [accountStatementController::class, 'exportInvoicesExcel'])->name('customerAccountStatement.export.excel');
+    Route::get('/customer/{id}/accountStatement/whatsapp', [accountStatementController::class, 'whatsappMonthlyStatement'])->name('customerAccountStatement.whatsapp');
     Route::get('/customer/{id}/accountStatement/transactions',[accountStatementController::class, 'transactionIndex'])->name('customerAccountStatement.transactionIndex');
     Route::get('/customer/{id}/accountStatement/create',[accountStatementController::class, 'create'])->name('customerAccountStatement.create');
     Route::post('/customer/{id}/accountStatement/create',[accountStatementController::class, 'store'])->name('customerAccountStatement.store');

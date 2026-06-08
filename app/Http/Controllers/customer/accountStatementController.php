@@ -14,6 +14,7 @@ use App\Models\CustomerInvoiceItems;
 use App\Models\CustomerTransaction;
 use App\Models\CustomerWallet;
 use App\Models\Product;
+use App\Services\CustomerWhatsAppStatementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,30 @@ class accountStatementController extends Controller
         $invoices = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
 
         return view('customer.accountStatement.index', compact('customer','invoices', 'remaining_amount'));
+    }
+
+    /**
+     * فتح واتساب مع كشف حساب شهري جاهز للإرسال للعميل.
+     */
+    public function whatsappMonthlyStatement($id, Request $request, CustomerWhatsAppStatementService $whatsapp)
+    {
+        $customer = Customer::with('wallet')->findOrFail($id);
+
+        if (blank($customer->phone)) {
+            Alert::error('تنبيه', 'لا يوجد رقم هاتف مسجل لهذا العميل. أضف الرقم من تعديل بيانات العميل.');
+
+            return redirect()->route('customerAccountStatement.index', $customer->id);
+        }
+
+        $month = $request->input('month', now()->format('Y-m'));
+
+        if (! preg_match('/^\d{4}-\d{2}$/', $month)) {
+            Alert::error('تنبيه', 'صيغة الشهر غير صحيحة.');
+
+            return redirect()->route('customerAccountStatement.index', $customer->id);
+        }
+
+        return redirect()->away($whatsapp->buildMonthlyStatementUrl($customer, $month));
     }
 
     /**

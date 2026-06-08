@@ -188,6 +188,15 @@
                                            title="كشف الحساب (فواتير)">
                                             <i class="bi bi-receipt"></i>
                                         </a>
+                                        @if($customer->phone)
+                                            <a href="{{ route('customerAccountStatement.whatsapp', ['id' => $customer->id, 'month' => now()->format('Y-m')]) }}"
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               class="p-2 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-800/30 transition-colors"
+                                               title="إرسال كشف شهري على واتساب">
+                                                <i class="bi bi-whatsapp"></i>
+                                            </a>
+                                        @endif
                                         <a href="{{ route('customerAccountStatement.transactionIndex', $customer->id) }}" 
                                            class="p-2 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/30 transition-colors"
                                            title="المعاملات">

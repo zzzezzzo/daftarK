@@ -19,6 +19,26 @@
                                     <i class="bi bi-plus-lg"></i>
                                     <span>إنشاء فاتورة جديدة</span>
                                 </a>
+
+                                @if($customer->phone)
+                                    <form action="{{ route('customerAccountStatement.whatsapp', $customer->id) }}" method="GET" target="_blank" class="inline-flex items-center gap-2">
+                                        <input type="month"
+                                               name="month"
+                                               value="{{ request('month', now()->format('Y-m')) }}"
+                                               class="px-3 py-2 rounded-xl text-sm text-gray-800 bg-white/90 border-0 focus:ring-2 focus:ring-green-400">
+                                        <button type="submit"
+                                                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-md">
+                                            <i class="bi bi-whatsapp text-lg"></i>
+                                            <span>إرسال كشف شهري على واتساب</span>
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="bg-white/10 text-white/80 px-4 py-2 rounded-xl text-sm flex items-center gap-2 cursor-not-allowed"
+                                          title="أضف رقم هاتف للعميل لتفعيل الإرسال">
+                                        <i class="bi bi-whatsapp"></i>
+                                        <span>لا يوجد رقم واتساب</span>
+                                    </span>
+                                @endif
                                 
                                 @if(!$customer->wallet)
                                     <a href="{{ route('customerAccountStatement.index', $customer->id) }}" 
