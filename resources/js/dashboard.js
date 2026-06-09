@@ -12,13 +12,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const currency = (value) =>
         new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
 
+    const isDark = () => document.documentElement.classList.contains('dark');
+
+    const themeColors = () => ({
+        grid: isDark() ? 'rgba(148,163,184,0.12)' : 'rgba(148,163,184,0.25)',
+        text: isDark() ? '#94a3b8' : '#64748b',
+        legend: isDark() ? '#cbd5e1' : '#475569',
+    });
+
+    const scaleOptions = () => {
+        const c = themeColors();
+        return {
+            grid: { color: c.grid },
+            ticks: { color: c.text },
+        };
+    };
+
     const baseOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: {
                 rtl: true,
-                labels: { font: { family: 'Figtree, sans-serif' }, padding: 16 },
+                labels: { font: { family: 'Cairo, sans-serif' }, padding: 16, color: themeColors().legend },
             },
             tooltip: {
                 rtl: true,
@@ -38,9 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ...baseOptions,
                 interaction: { mode: 'index', intersect: false },
                 scales: {
+                    x: scaleOptions(),
                     y: {
                         beginAtZero: true,
-                        ticks: { callback: (v) => currency(v) },
+                        ...scaleOptions(),
+                        ticks: { ...scaleOptions().ticks, callback: (v) => currency(v) },
                     },
                 },
             },
@@ -55,9 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
             options: {
                 ...baseOptions,
                 scales: {
+                    x: scaleOptions(),
                     y: {
                         beginAtZero: true,
-                        ticks: { callback: (v) => currency(v) },
+                        ...scaleOptions(),
+                        ticks: { ...scaleOptions().ticks, callback: (v) => currency(v) },
                     },
                 },
             },
@@ -117,7 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                 },
                 scales: {
-                    x: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { beginAtZero: true, ticks: { stepSize: 1, ...scaleOptions().ticks }, ...scaleOptions() },
+                    y: scaleOptions(),
                 },
             },
         });
@@ -173,12 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
             period = button.dataset.period;
 
             document.querySelectorAll('[data-period]').forEach((btn) => {
-                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
-                btn.classList.add('bg-white', 'text-gray-600', 'dark:bg-gray-700', 'dark:text-gray-300');
+                btn.classList.remove('ui-segment-btn-active');
             });
 
-            button.classList.add('bg-blue-600', 'text-white', 'shadow-md');
-            button.classList.remove('bg-white', 'text-gray-600', 'dark:bg-gray-700', 'dark:text-gray-300');
+            button.classList.add('ui-segment-btn-active');
 
             const hint = document.getElementById('periodHint');
             if (hint) {
@@ -192,4 +211,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     updateTrendCharts();
+
+    document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            setTimeout(() => {
+                Object.values(charts).forEach((chart) => {
+                    const c = themeColors();
+                    if (chart.options.plugins?.legend?.labels) {
+                        chart.options.plugins.legend.labels.color = c.legend;
+                    }
+                    ['x', 'y'].forEach((axis) => {
+                        if (chart.options.scales?.[axis]) {
+                            chart.options.scales[axis].grid = { color: c.grid };
+                            chart.options.scales[axis].ticks = {
+                                ...chart.options.scales[axis].ticks,
+                                color: c.text,
+                            };
+                        }
+                    });
+                    chart.update();
+                });
+            }, 50);
+        });
+    });
 });

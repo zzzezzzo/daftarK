@@ -1,52 +1,41 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-        <div class="max-w-7xl mx-auto">
-            <!-- Header Section -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-6">
-                <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-                    <div class="flex items-center justify-between">
+    <div class="page-shell">
+        <div class="page-container">
+            <div class="ui-card overflow-hidden mb-6 animate-fade-in-up">
+                <div class="ui-card-header">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur">
                                 <i class="bi bi-people text-2xl"></i>
                             </div>
                             <div>
                                 <h1 class="text-2xl font-bold">العملاء</h1>
-                                <p class="text-blue-100 text-sm">إدارة بيانات العملاء</p>
+                                <p class="text-blue-100/90 text-sm">إدارة بيانات العملاء</p>
                             </div>
                         </div>
-                        <a href="{{ route('customer.create') }}" 
-                           class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
-                            <i class="bi bi-person-plus"></i>
-                            <span>عميل جديد</span>
+                        <a href="{{ route('customer.create') }}" class="ui-btn-ghost">
+                            <i class="bi bi-person-plus"></i><span>عميل جديد</span>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Search Section -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-6">
+            <div class="ui-card p-6 mb-6 animate-fade-in-up" style="animation-delay:0.05s">
                 <form action="{{ route('customer.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-1">
-                        <i class="bi bi-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input 
-                            type="text" 
-                            name="search" 
-                            value="{{ request('search') }}" 
-                            placeholder="ابحث عن عميل بالاسم أو رقم الهاتف..." 
-                            class="w-full pr-12 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all">
+                        <i class="bi bi-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                               placeholder="ابحث عن عميل بالاسم أو رقم الهاتف..."
+                               class="ui-input pr-12">
                     </div>
-                    <button 
-                        type="submit" 
-                        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2">
-                        <i class="bi bi-search"></i>
-                        <span>بحث</span>
+                    <button type="submit" class="ui-btn-primary px-8">
+                        <i class="bi bi-search"></i><span>بحث</span>
                     </button>
                 </form>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border-l-4 border-blue-500">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 stagger-children">
+                <div class="ui-kpi ui-kpi-blue">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">إجمالي العملاء</p>
@@ -58,7 +47,7 @@
                     </div>
                 </div>
                 
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border-l-4 border-green-500">
+                <div class="ui-kpi ui-kpi-green">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">العملاء الدائمون</p>
@@ -70,7 +59,7 @@
                     </div>
                 </div>
                 
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border-l-4 border-purple-500">
+                <div class="ui-kpi ui-kpi-purple">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">العملاء العابرين</p>
@@ -83,11 +72,10 @@
                 </div>
             </div>
 
-            <!-- Customers Table -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300">
+            <div class="ui-card overflow-hidden animate-fade-in-up">
+                <div class="ui-table-wrap border-0 rounded-none">
+                    <table class="ui-table w-full">
+                        <thead>
                             <tr>
                                 <th class="p-4 text-right font-semibold">
                                     <div class="flex items-center gap-2 ">
@@ -123,7 +111,7 @@
                         </thead>
                         <tbody>
                             @foreach($customers as $customer)
-                            <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors">
+                            <tr>
                                 <td class="p-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">

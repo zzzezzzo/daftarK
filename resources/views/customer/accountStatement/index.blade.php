@@ -1,68 +1,42 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-        <div class="max-w-7xl mx-auto">
-            <!-- Header Section -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-6">
-                <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-                    <div class="flex items-center justify-between">
+    <div class="page-shell">
+        <div class="page-container">
+            <div class="ui-card overflow-hidden mb-6 animate-fade-in-up">
+                <div class="ui-card-header">
+                    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur">
                                 <i class="bi bi-receipt text-2xl"></i>
                             </div>
                             <div>
                                 <h1 class="text-2xl font-bold">كشف حساب العميل</h1>
-                                <p class="text-blue-100 text-sm">{{ $customer->name }}</p>
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                <a href="{{ route('customerAccountStatement.create', $customer->id) }}" 
-                                    class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
-                                    <i class="bi bi-plus-lg"></i>
-                                    <span>إنشاء فاتورة جديدة</span>
-                                </a>
-
-                                @if($customer->phone)
-                                    <form action="{{ route('customerAccountStatement.whatsapp', $customer->id) }}" method="GET" target="_blank" class="inline-flex items-center gap-2">
-                                        <input type="month"
-                                               name="month"
-                                               value="{{ request('month', now()->format('Y-m')) }}"
-                                               class="px-3 py-2 rounded-xl text-sm text-gray-800 bg-white/90 border-0 focus:ring-2 focus:ring-green-400">
-                                        <button type="submit"
-                                                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-md">
-                                            <i class="bi bi-whatsapp text-lg"></i>
-                                            <span>إرسال كشف شهري على واتساب</span>
-                                        </button>
-                                    </form>
-                                @else
-                                    <span class="bg-white/10 text-white/80 px-4 py-2 rounded-xl text-sm flex items-center gap-2 cursor-not-allowed"
-                                          title="أضف رقم هاتف للعميل لتفعيل الإرسال">
-                                        <i class="bi bi-whatsapp"></i>
-                                        <span>لا يوجد رقم واتساب</span>
-                                    </span>
-                                @endif
-                                
-                                @if(!$customer->wallet)
-                                    <a href="{{ route('customerAccountStatement.index', $customer->id) }}" 
-                                       class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
-                                        <i class="bi bi-arrow-clockwise text-blue-600"></i>
-                                        <span>العودة إلى آخر تحديث</span>
-                                    </a>
-                                @endif
+                                <p class="text-blue-100/90 text-sm">{{ $customer->name }}</p>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">
-                                <p>آخر تحديث</p>
-                                <p class="text-lg font-semibold text-gray-700 dark:text-gray-300">{{ now()->format('Y-m-d H:i') }}</p>
-                            </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('customerAccountStatement.create', $customer->id) }}" class="ui-btn-ghost">
+                                <i class="bi bi-plus-lg"></i><span>فاتورة جديدة</span>
+                            </a>
+                            @if($customer->phone)
+                                <form action="{{ route('customerAccountStatement.whatsapp', $customer->id) }}" method="GET" target="_blank" class="inline-flex items-center gap-2">
+                                    <input type="month" name="month" value="{{ request('month', now()->format('Y-m')) }}"
+                                           class="px-3 py-2 rounded-xl text-sm text-slate-800 bg-white/90 border-0 focus:ring-2 focus:ring-emerald-400">
+                                    <button type="submit" class="ui-btn-success shadow-md">
+                                        <i class="bi bi-whatsapp text-lg"></i><span>واتساب شهري</span>
+                                    </button>
+                                </form>
+                            @else
+                                <span class="ui-btn-ghost opacity-60 cursor-not-allowed" title="أضف رقم هاتف للعميل">
+                                    <i class="bi bi-whatsapp"></i><span>لا يوجد رقم</span>
+                                </span>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Balance Cards Section -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <!-- Current Balance Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 stagger-children">
+                <div class="ui-kpi ui-kpi-green">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
                             <i class="bi bi-cash-stack text-white text-xl"></i>
@@ -81,7 +55,7 @@
 
                 <!-- Wallet Balance Card -->
                 @if($customer->wallet && $customer->type === 'permanent')
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="ui-kpi ui-kpi-blue">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                             <i class="bi bi-wallet2 text-white text-xl"></i>
@@ -100,7 +74,7 @@
                 @endif
 
                 <!-- Total Sales Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="ui-kpi ui-kpi-purple">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                             <i class="bi bi-cart-check text-white text-xl"></i>
@@ -219,72 +193,44 @@
                 </div>
             </div>
 
-            <!-- Invoices Table -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+            <div class="ui-card overflow-hidden animate-fade-in-up">
                 <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-                            <i class="bi bi-list-ul text-blue-600"></i>
-                            سجل الفواتير
-                        </h3>
-                    </div>
-                    <!-- Search Filter -->
+                    <h3 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+                        <i class="bi bi-list-ul text-brand-500"></i> سجل الفواتير
+                    </h3>
                     <form action="{{ route('customerAccountStatement.index', $customer->id) }}" method="GET" class="mb-4">
                         <div class="grid grid-cols-1 xl:grid-cols-12 gap-3">
                             <div class="relative xl:col-span-4">
-                                <i class="bi bi-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input 
-                                    type="text" 
-                                    name="search" 
-                                    value="{{ request('search') }}" 
-                                    placeholder="ابحث في الفواتير..." 
-                                    class="w-full pr-12 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all">
+                                <i class="bi bi-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="ابحث في الفواتير..." class="ui-input pr-12">
                             </div>
-                            <select name="filter" class="xl:col-span-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                            <select name="filter" class="ui-input xl:col-span-2">
                                 <option value="">جميع الفواتير</option>
                                 <option value="paid" {{ request('filter') == 'paid' ? 'selected' : '' }}>المدفوعة فقط</option>
                                 <option value="unpaid" {{ request('filter') == 'unpaid' ? 'selected' : '' }}>غير المدفوعة</option>
                                 <option value="partial" {{ request('filter') == 'partial' ? 'selected' : '' }}>المدفوعة جزئياً</option>
                             </select>
-                            <input 
-                                type="date" 
-                                name="from_date" 
-                                value="{{ request('from_date') }}"
-                                title="من تاريخ"
-                                class="xl:col-span-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
-                            <input 
-                                type="date" 
-                                name="to_date" 
-                                value="{{ request('to_date') }}"
-                                title="إلى تاريخ"
-                                min="{{ request('from_date') }}"
-                                class="xl:col-span-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
-                            <button type="submit" class="xl:col-span-1 px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
-                                <i class="bi bi-search"></i>
-                                بحث
-                            </button>
-                            <a href="{{ route('customerAccountStatement.index', $customer->id) }}"
-                                class="xl:col-span-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                                إعادة
+                            <input type="date" name="from_date" value="{{ request('from_date') }}" title="من تاريخ" class="ui-input xl:col-span-2">
+                            <input type="date" name="to_date" value="{{ request('to_date') }}" title="إلى تاريخ" min="{{ request('from_date') }}" class="ui-input xl:col-span-2">
+                            <button type="submit" class="ui-btn-primary xl:col-span-1"><i class="bi bi-search"></i> بحث</button>
+                            <a href="{{ route('customerAccountStatement.index', $customer->id) }}" class="ui-btn xl:col-span-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 text-center">
+                                <i class="bi bi-arrow-counterclockwise"></i> إعادة
                             </a>
                         </div>
-                        <div class="mt-3 rounded-xl bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-gray-700 dark:to-gray-700 border border-emerald-100 dark:border-gray-600 p-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                            <p class="text-sm text-gray-700 dark:text-gray-200">
+                        <div class="mt-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 p-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                            <p class="text-sm text-slate-600 dark:text-slate-300">
                                 <i class="bi bi-info-circle text-emerald-600"></i>
-                                التصدير سيشمل نفس نتائج البحث والتصفية والفترة الزمنية الحالية.
+                                التصدير سيشمل نفس نتائج البحث والتصفية.
                             </p>
-                            <a href="{{ route('customerAccountStatement.export.excel', array_merge(['id' => $customer->id], request()->only(['search', 'filter', 'from_date', 'to_date']))) }}"
-                                class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors">
-                                <i class="bi bi-download"></i>
-                                تنزيل Excel
+                            <a href="{{ route('customerAccountStatement.export.excel', array_merge(['id' => $customer->id], request()->only(['search', 'filter', 'from_date', 'to_date']))) }}" class="ui-btn-success">
+                                <i class="bi bi-download"></i> تنزيل Excel
                             </a>
                         </div>
                     </form>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300">
+                <div class="ui-table-wrap border-x-0 border-b-0 rounded-none">
+                    <table class="ui-table w-full">
+                        <thead>
                             <tr>
                                 <th class="p-4 text-right font-semibold">
                                     <div class="flex items-center gap-2 ">
@@ -326,7 +272,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach($invoices as $invoice)
-                            <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors">
+                            <tr>
                                 <td class="p-4 text-gray-600 dark:text-gray-400 font-medium">{{ $invoice->date }}</td>
                                 <td class="p-4">
                                     <a href="{{ route('customerAccountStatement.show', [$customer->id, $invoice->id]) }}" 

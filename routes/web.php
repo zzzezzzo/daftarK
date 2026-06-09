@@ -7,6 +7,7 @@ use App\Http\Controllers\customer\accountStatementController;
 use App\Http\Controllers\customer\CustomerInvoiceController;
 use App\Http\Controllers\customer\CustomerTransactionController;
 use App\Http\Controllers\customer\customerController;
+use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -25,6 +26,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+    Route::get('/reports/daily', [DailyReportController::class, 'index'])->name('reports.daily');
     // product routes
     Route::get('/products',[ProductController::class, 'index'])->name('products.index');
     Route::get('/products/export/excel', [ProductController::class, 'exportExcel'])->name('products.export.excel');

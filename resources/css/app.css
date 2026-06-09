@@ -1,129 +1,232 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@media print {
-    body * { visibility: hidden; }
-    #invoiceArea, #invoiceArea * { visibility: visible; }
-    #invoiceArea {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        box-shadow: none;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
     }
-    .print\:hidden{ display:none; }
+
+    body {
+        @apply bg-slate-50 text-slate-800 antialiased;
+        @apply dark:bg-slate-950 dark:text-slate-100;
+    }
+
+    ::selection {
+        @apply bg-brand-500/25 text-brand-900 dark:text-brand-100;
+    }
+}
+
+@layer components {
+    /* ── Page shell ── */
+    .page-shell {
+        @apply min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30;
+        @apply dark:from-slate-950 dark:via-slate-900 dark:to-slate-950;
+    }
+
+    .page-container {
+        @apply p-4 lg:p-8 max-w-7xl mx-auto animate-fade-in;
+    }
+
+    /* ── Cards ── */
+    .ui-card {
+        @apply bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm;
+        @apply border border-slate-200/80 dark:border-slate-700/80;
+        @apply rounded-2xl shadow-soft dark:shadow-soft-dark;
+        @apply transition-all duration-300 ease-out;
+    }
+
+    .ui-card-hover {
+        @apply ui-card hover:-translate-y-1 hover:shadow-lg hover:border-brand-200/60;
+        @apply dark:hover:border-brand-500/30 dark:hover:shadow-glow;
+    }
+
+    .ui-card-header {
+        @apply bg-gradient-to-l from-brand-600 via-indigo-600 to-violet-600 p-6 text-white;
+        @apply dark:from-brand-700 dark:via-indigo-700 dark:to-violet-800;
+    }
+
+    .ui-kpi {
+        @apply ui-card-hover p-5 relative overflow-hidden;
+    }
+
+    .ui-kpi::before {
+        content: '';
+        @apply absolute inset-y-0 right-0 w-1 rounded-r-2xl;
+    }
+
+    .ui-kpi-blue::before { @apply bg-blue-500; }
+    .ui-kpi-green::before { @apply bg-emerald-500; }
+    .ui-kpi-purple::before { @apply bg-violet-500; }
+    .ui-kpi-orange::before { @apply bg-orange-500; }
+    .ui-kpi-pink::before { @apply bg-rose-500; }
+    .ui-kpi-cyan::before { @apply bg-cyan-500; }
+
+    /* ── Typography ── */
+    .ui-page-title {
+        @apply text-2xl lg:text-3xl font-bold;
+        @apply bg-gradient-to-l from-brand-600 to-violet-600 bg-clip-text text-transparent;
+        @apply dark:from-brand-400 dark:to-violet-400;
+    }
+
+    .ui-page-subtitle {
+        @apply text-slate-500 dark:text-slate-400 text-sm lg:text-base;
+    }
+
+    /* ── Buttons ── */
+    .ui-btn {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl;
+        @apply font-semibold text-sm transition-all duration-200;
+        @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+        @apply dark:focus:ring-offset-slate-900;
+        @apply active:scale-[0.98];
+    }
+
+    .ui-btn-primary {
+        @apply ui-btn bg-brand-600 text-white hover:bg-brand-700;
+        @apply focus:ring-brand-500 shadow-md hover:shadow-lg;
+    }
+
+    .ui-btn-ghost {
+        @apply ui-btn bg-white/20 text-white hover:bg-white/30 backdrop-blur;
+        @apply dark:bg-slate-700/50 dark:hover:bg-slate-600/60;
+    }
+
+    .ui-btn-success {
+        @apply ui-btn bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar-shell {
+        @apply w-64 h-full p-4 lg:p-5;
+        @apply bg-slate-100/80 dark:bg-slate-900/95 backdrop-blur-md;
+    }
+
+    .sidebar-panel {
+        @apply h-full rounded-2xl border border-slate-200/80 dark:border-slate-700/80;
+        @apply bg-white/95 dark:bg-slate-800/95 shadow-soft dark:shadow-soft-dark p-4;
+    }
+
+    .sidebar-brand {
+        @apply flex items-center gap-3 px-3 py-4 mb-4 border-b border-slate-100 dark:border-slate-700;
+    }
+
+    .sidebar-link {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium;
+        @apply text-slate-600 dark:text-slate-300;
+        @apply transition-all duration-200 ease-out;
+        @apply hover:bg-slate-100 dark:hover:bg-slate-700/70;
+        @apply hover:translate-x-[-2px];
+    }
+
+    .sidebar-link-active {
+        @apply bg-brand-50 dark:bg-brand-500/15;
+        @apply text-brand-700 dark:text-brand-300 font-semibold;
+        @apply border border-brand-100 dark:border-brand-500/25;
+        @apply shadow-sm;
+    }
+
+    .sidebar-sublink {
+        @apply flex items-center gap-2.5 px-3 py-2 mr-4 rounded-lg text-xs;
+        @apply text-slate-500 dark:text-slate-400;
+        @apply transition-colors duration-200;
+        @apply hover:bg-slate-50 dark:hover:bg-slate-700/50;
+        @apply hover:text-slate-700 dark:hover:text-slate-200;
+    }
+
+    /* ── Tables ── */
+    .ui-table-wrap {
+        @apply overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-700/80;
+    }
+
+    .ui-table thead {
+        @apply bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300;
+    }
+
+    .ui-table th {
+        @apply p-4 text-right text-xs font-semibold uppercase tracking-wide;
+    }
+
+    .ui-table tbody tr {
+        @apply border-t border-slate-100 dark:border-slate-700/80;
+        @apply transition-colors duration-150;
+        @apply hover:bg-brand-50/50 dark:hover:bg-slate-700/40;
+    }
+
+    .ui-table td {
+        @apply p-4 text-slate-700 dark:text-slate-200;
+    }
+
+    /* ── Stagger animation for grids ── */
+    .stagger-children > * {
+        @apply animate-fade-in-up;
+    }
+    .stagger-children > *:nth-child(1) { animation-delay: 0.04s; }
+    .stagger-children > *:nth-child(2) { animation-delay: 0.08s; }
+    .stagger-children > *:nth-child(3) { animation-delay: 0.12s; }
+    .stagger-children > *:nth-child(4) { animation-delay: 0.16s; }
+    .stagger-children > *:nth-child(5) { animation-delay: 0.20s; }
+    .stagger-children > *:nth-child(6) { animation-delay: 0.24s; }
+
+    /* ── Form inputs ── */
+    .ui-input {
+        @apply w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600;
+        @apply bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100;
+        @apply focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400;
+        @apply transition-all duration-200 placeholder:text-slate-400;
+    }
+
+    /* ── Segmented control ── */
+    .ui-segment {
+        @apply inline-flex rounded-xl border border-slate-200 dark:border-slate-600 p-1;
+        @apply bg-slate-100/80 dark:bg-slate-800/80;
+    }
+
+    .ui-segment-btn {
+        @apply px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200;
+        @apply text-slate-600 dark:text-slate-300;
+    }
+
+    .ui-segment-btn-active {
+        @apply bg-brand-600 text-white shadow-md;
+    }
+}
+
+/* ── Print (thermal receipts excluded) ── */
+@media print {
+    body:not(:has(.thermal-receipt-root)) * { visibility: hidden; }
+    body:not(:has(.thermal-receipt-root)) #invoiceArea,
+    body:not(:has(.thermal-receipt-root)) #invoiceArea * { visibility: visible; }
+    body:not(:has(.thermal-receipt-root)) #invoiceArea {
+        position: absolute; left: 0; top: 0; width: 100%; box-shadow: none;
+    }
+    .print\:hidden { display: none !important; }
 }
 
 @media print {
-
-    body{
-        background:white !important;
+    body:not(:has(.thermal-receipt-root)) { background: white !important; }
+    body:not(:has(.thermal-receipt-root)) * { visibility: hidden; }
+    body:not(:has(.thermal-receipt-root)) #print-area,
+    body:not(:has(.thermal-receipt-root)) #print-area * {
+        visibility: visible;
+        max-height: 95vh !important;
+        overflow: hidden !important;
     }
-
-    /* اخفاء كل حاجة */
-    body *{
-        visibility:hidden;
+    body:not(:has(.thermal-receipt-root)) #print-area {
+        position: absolute; left: 0; top: 0; width: 100%;
+        padding: 10px; background: white !important;
     }
+    .no-print { display: none !important; }
 
-    /* اظهار الفاتورة فقط */
-    #print-area,
-    #print-area *{
-        visibility:visible;
-            max-height:95vh !important;
-        overflow:hidden !important;
-    }
+    body:not(:has(.thermal-receipt-root)) table,
+    body:not(:has(.thermal-receipt-root)) tr,
+    body:not(:has(.thermal-receipt-root)) td,
+    body:not(:has(.thermal-receipt-root)) th { page-break-inside: avoid !important; }
 
-    #print-area{
-        position:absolute;
-        left:0;
-        top:0;
-        width:100%;
-        padding:10px;
-        background:white !important;
-    }
-
-    /* اخفاء الازرار */
-    .no-print{
-        display:none !important;
-    }
-
-    /* ===================== */
-    /* الاتجاه بالعرض */
-    @page{
-        size:A4 landscape;   /* 👈 بالجنب */
-        margin:8mm;
-    }
-
-    /* ===================== */
-    /* الهيدر أفقي */
-    .head-invoice{
-        display:flex !important;
-        flex-direction:row !important;
-        align-items:center !important;
-        /* justify-content:space-between !important; */
-        width:100% !important;
-        margin-bottom:10px !important;
-    }
-
-    .head-invoice > div{
-        /* width:auto !important; */
-        flex:1 !important;
-    }
-    .user-info{
-        position:absolute;
-        top:10px;
-        left:10px;
-    }
-
-    /* ===================== */
-    /* منع كسر الصفحات */
-    table, tr, td, th, thead, tbody{
-        page-break-inside:avoid !important;
-        break-inside:avoid !important;
-    }
-
-    .bg-white,
-    .shadow-xl,
-    .shadow-lg{
-        page-break-inside:avoid !important;
-    }
-
-    /* ===================== */
-    /* إزالة الألوان */
-    .bg-gradient-to-r,
-    .bg-gradient-to-br,
-    .bg-white\/10{
-        background:white !important;
-        color:black !important;
-    }
-
-    /* ===================== */
-    /* الجدول في الطباعة */
-    table{
-        width:100%;
-        border-collapse:collapse !important;
-    }
-
-    th, td{
-        padding:6px !important;
-        font-size:11px !important;
-        color:black !important;
-    }
-
-    /* ===================== */
-    /* العناوين */
-    h1{
-        font-size:18px !important;
-        margin:0 !important;
-    }
-
-    h2{
-        font-size:14px !important;
-        margin:0 !important;
-    }
-
+    body:not(:has(.thermal-receipt-root)) .bg-white,
+    body:not(:has(.thermal-receipt-root)) .shadow-xl { page-break-inside: avoid !important; }
 }
 
-
-
-
+@media print {
+    @page { size: A4 landscape; margin: 8mm; }
+}
