@@ -49,10 +49,10 @@
                         <table class="w-full text-right border-collapse border border-black receipt-table text-xs">
                             <thead>
                                 <tr class="bg-zinc-100 text-[11px] font-bold border-b border-black">
-                                    <th class="border-l border-black p-1 text-right w-[42%]">المنتج</th>
-                                    <th class="border-l border-black p-1 text-center w-[18%]">السعر</th>
-                                    <th class="border-l border-black p-1 text-center w-[15%]">الكمية</th>
-                                    <th class="p-1 text-left w-[25%]">الإجمالي</th>
+                                    <th class="border-l border-black text-gray-900 p-1 text-right w-[42%]">المنتج</th>
+                                    <th class="border-l border-black text-gray-900 p-1 text-center w-[18%]">السعر</th>
+                                    <th class="border-l border-black text-gray-900 p-1 text-center w-[15%]">الكمية</th>
+                                    <th class="text-gray-900 p-1 text-left w-[25%]">الإجمالي</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -61,16 +61,16 @@
                                         $lineTotal = $item->quantity * $item->unit_price;
                                     @endphp
                                     <tr class="border-b border-black last:border-b-0">
-                                        <td class="border-l border-black p-1 font-bold leading-tight text-right text-[12px]">
+                                        <td class="border-l border-black text-gray-900 p-1 font-bold leading-tight text-right text-[12px]">
                                             {{ $item->product->name }}
                                         </td>
-                                        <td class="border-l border-black p-1 text-center tabular-nums font-bold whitespace-nowrap">
+                                        <td class="border-l border-black p-1 text-center text-black tabular-nums font-bold whitespace-nowrap">
                                             {{ number_format($item->unit_price, 2, '.', '') }}
                                         </td>
-                                        <td class="border-l border-black p-1 text-center tabular-nums font-extrabold">
+                                        <td class="border-l text-gray-900 border-black p-1 text-center tabular-nums font-extrabold">
                                             {{ $item->quantity }}
                                         </td>
-                                        <td class="p-1 text-left tabular-nums font-extrabold">
+                                        <td class="p-1 text-gray-900 text-left tabular-nums font-extrabold">
                                             {{ number_format($lineTotal, 2, '.', '') }}
                                         </td>
                                     </tr>

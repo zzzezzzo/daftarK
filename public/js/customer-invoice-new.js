@@ -69,9 +69,10 @@ function addProductToInvoice() {
         showNotification("يرجى إدخال كمية صحيحة", "error");
         return;
     }
-
-    if (qty > selectedProduct.stock) {
-        showNotification(`الكمية المطلوبة (${qty}) تتجاوز المتوفر (${selectedProduct.stock})`, "error");
+    const invoiceTypeElement = document.querySelector('select[name="type"]');
+    const invoiceType = invoiceTypeElement ? invoiceTypeElement.value : 'payment';
+    if(invoiceType === 'payment' && qty > selectedProduct.stock) {
+        showNotification(`الكمية المطلوبة (${qty}) تتجاوز المتوفر (${selectedProduct.stock}) `, "error");
         return;
     }
 
