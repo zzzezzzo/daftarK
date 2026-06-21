@@ -78,4 +78,13 @@ class Product extends Model
             'client' => $this->getPriceForCustomerType('client'),
         ];
     }
+    public function saleItems()
+    {
+        return $this->hasMany(CustomerInvoiceItems::class);
+    }
+
+    public function purchaseItems()
+    {
+        return $this->hasMany(SupplierInvoiceItems::class);
+    }
 }

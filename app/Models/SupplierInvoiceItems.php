@@ -17,4 +17,9 @@ class SupplierInvoiceItems extends Model
     public function product(){
     return $this->belongsTo(Product::class);
 }
+
+    public function invoice()
+    {
+        return $this->belongsTo(SupplierInvoice::class, 'supplier_invoice_id');
+    }
 }

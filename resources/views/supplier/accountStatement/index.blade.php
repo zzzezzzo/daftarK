@@ -80,7 +80,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">الصافي المستحق</p>
-                            <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ number_format($invoices->where('type', 'purchase')->sum('total_amount') - $invoices->where('type', 'return')->sum('total_amount') - $invoices->sum('paid_amount'), 2) }} ج.م</p>
+                            <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ number_format($invoices->where('type', 'purchase')->sum('total_amount') - $remaining_amount, 2) }} ج.م</p>
                         </div>
                     </div>
                 </div>

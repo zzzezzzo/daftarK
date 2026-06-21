@@ -102,6 +102,8 @@ Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::post('/customer/transactions', [CustomerTransactionController::class, 'store'])->name('customer.transactions.store');
     // customer wallet
     Route::post('/wallet/{id}', [walletController::class, 'store'])->name('customerWallet.store');
+    // customer of the Movement on the product
+    Route::get('/products/{id}/movements', [ProductController::class, 'movements'])->name('products.movements');
     // cash box management
     Route::get('/cashBoxes', [CashBoxController::class, 'index'])->name('cashBoxes.index');
     Route::get('/cashBoxes/create', [CashBoxController::class, 'create'])->name('cashBoxes.create');

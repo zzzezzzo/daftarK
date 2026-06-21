@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Category;
+use App\Models\CustomerInvoiceItems;
 use App\Models\Product;
+use App\Models\SupplierInvoiceItems;
+use Carbon\Carbon;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 
@@ -368,5 +371,102 @@ XML;
         $lines[] = '</Workbook>';
 
         return implode("\n", $lines);
+    }
+    public function movements($id, Request $request)
+    {
+        $product = Product::with('category')->findOrFail($id);
+
+        $movements = collect();
+
+        $customerItems = CustomerInvoiceItems::where('product_id', $product->id)
+            ->with(['invoice.customer'])
+            ->whereHas('invoice')
+            ->get();
+
+        foreach ($customerItems as $item) {
+            $invoice = $item->invoice;
+            $isReturn = $invoice->type === 'return';
+            $qty = (int) $item->quantity;
+            $date = $invoice->date instanceof Carbon
+                ? $invoice->date->format('Y-m-d')
+                : Carbon::parse($invoice->date)->format('Y-m-d');
+
+            $movements->push([
+                'date' => $date,
+                'type' => $isReturn ? 'return_in' : 'sale',
+                'type_label' => $isReturn ? 'مرتجع من عميل' : 'بيع لعميل',
+                'party' => $invoice->customer?->name ?? '—',
+                'party_type' => 'customer',
+                'invoice_number' => $invoice->invoice_number,
+                'invoice_id' => $invoice->id,
+                'party_id' => $invoice->customer_id,
+                'quantity' => $qty,
+                'stock_effect' => $isReturn ? $qty : -$qty,
+                'unit_price' => (float) $item->unit_price,
+                'line_total' => round($qty * (float) $item->unit_price, 2),
+            ]);
+        }
+
+        $supplierItems = SupplierInvoiceItems::where('product_id', $product->id)
+            ->with(['invoice.supplier'])
+            ->whereHas('invoice')
+            ->get();
+
+        foreach ($supplierItems as $item) {
+            $invoice = $item->invoice;
+            $isReturn = $invoice->type === 'return';
+            $qty = (int) $item->quantity;
+            $date = $invoice->date instanceof Carbon
+                ? $invoice->date->format('Y-m-d')
+                : Carbon::parse($invoice->date)->format('Y-m-d');
+
+            $movements->push([
+                'date' => $date,
+                'type' => $isReturn ? 'return_out' : 'purchase',
+                'type_label' => $isReturn ? 'مرتجع لمورد' : 'شراء من مورد',
+                'party' => $invoice->supplier?->name ?? '—',
+                'party_type' => 'supplier',
+                'invoice_number' => $invoice->invoice_number,
+                'invoice_id' => $invoice->id,
+                'party_id' => $invoice->supplier_id,
+                'quantity' => $qty,
+                'stock_effect' => $isReturn ? -$qty : $qty,
+                'unit_price' => (float) $item->unit_price,
+                'line_total' => round($qty * (float) $item->unit_price, 2),
+            ]);
+        }
+
+        if ($request->filled('from_date')) {
+            $movements = $movements->filter(fn ($m) => $m['date'] >= $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $movements = $movements->filter(fn ($m) => $m['date'] <= $request->to_date);
+        }
+        if ($request->filled('type')) {
+            $movements = $movements->where('type', $request->type);
+        }
+        if ($request->filled('search')) {
+            $search = mb_strtolower($request->search);
+            $movements = $movements->filter(function ($m) use ($search) {
+                return str_contains(mb_strtolower($m['party']), $search)
+                    || str_contains(mb_strtolower($m['invoice_number']), $search);
+            });
+        }
+
+        $movements = $movements->sortByDesc('date')->values();
+
+        $stats = [
+            'sold' => $movements->where('type', 'sale')->sum('quantity'),
+            'returned_in' => $movements->where('type', 'return_in')->sum('quantity'),
+            'purchased' => $movements->where('type', 'purchase')->sum('quantity'),
+            'returned_out' => $movements->where('type', 'return_out')->sum('quantity'),
+            'stock_in' => $movements->where('stock_effect', '>', 0)->sum('stock_effect'),
+            'stock_out' => abs($movements->where('stock_effect', '<', 0)->sum('stock_effect')),
+            'net_stock' => $movements->sum('stock_effect'),
+            'total_value' => round($movements->sum('line_total'), 2),
+            'count' => $movements->count(),
+        ];
+
+        return view('product.movements', compact('product', 'movements', 'stats'));
     }
 }

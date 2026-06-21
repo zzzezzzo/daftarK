@@ -647,7 +647,7 @@ XML;
                         throw new \Exception("سعر المنتج {$product->name} لا يمكن أن يكون أقل من السعر الأساسي");    
                         
                     }
-                    if ($item['quantity'] > $product->stock ){
+                    if($request->type === 'payment' && $item['quantity'] > $product->stock){
                         Alert::error('خطأ', "الكمية المطلوبة من المنتج {$product->name} غير متوفرة في المخزون");
                         throw new \Exception("الكمية المطلوبة من المنتج {$product->name} غير متوفرة في المخزون");
                     }
@@ -665,7 +665,6 @@ XML;
                         $product->increment('stock', $item['quantity']);
                     }
                 }
-                    
                 // 7. التعامل مع الخزنة
                 if ($cashPayment > 0) {
                     $cashBox = CashBox::where('status', 'active')

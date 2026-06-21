@@ -208,6 +208,11 @@
                                            title="باركود">
                                             <i class="bi bi-upc-scan"></i>
                                         </a>
+                                        <a href="{{ route('products.movements', $product->id) }}" 
+                                           class="p-2 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-lg hover:bg-yellow-200 dark:hover:bg-yellow-800/30 transition-colors"
+                                           title="الحركات">
+                                            <i class="bi bi-arrow-left-right"></i>
+                                        </a>
                                         <a href="{{ route('products.edit', $product->id) }}" 
                                            class="p-2 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800/30 transition-colors"
                                            title="تعديل">

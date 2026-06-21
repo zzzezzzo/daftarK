@@ -27,7 +27,6 @@ class accountStatement extends Controller
     public function index($id, Request $request){
         $supplier = Supplier::findOrFail($id);
         $invoices = $supplier->invoices();
-        
         // Add search functionality
         if($request->filled('search')){
             $search = $request->search;
@@ -39,7 +38,6 @@ class accountStatement extends Controller
                   ->orWhere('date', 'like', "%$search%");
             });
         }
-        
         // Add filter functionality
         if($request->filled('filter')){
             $filter = $request->filter;
@@ -57,6 +55,8 @@ class accountStatement extends Controller
         }
         
         $invoices = $invoices->orderBy('created_at', 'desc')->get();
+        // $remaining_amount = 100;
+        
         $remaining_amount = $invoices->sum('Remaining_amount');
         return view('supplier.accountStatement.index' ,compact('supplier','invoices' ,'remaining_amount'));
     }
