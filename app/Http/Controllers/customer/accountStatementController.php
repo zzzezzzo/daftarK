@@ -560,7 +560,6 @@ XML;
                     $unitPrice = $item['unit_price'] ?? $item['price'] ?? 0;
                     return $item['quantity'] * $unitPrice;
                 });
-    
                 $cashPayment = $request->paid_amount ?? 0;
                 $walletPayment = 0;
     
@@ -580,7 +579,10 @@ XML;
                         $cashBox = CashBox::where('status', 'active')
                             ->where('user_id', auth()->id())
                             ->first();
-                        $product->increment('stock', $request->products[0]['quantity']);
+                        foreach ($request->products as $item) {
+                            $product = Product::findOrFail($item['product_id']);
+                            $product->increment('stock', $item['quantity']);
+                        }
                         $invoice = CustomerInvoice::create([
                             'invoice_number' => 'RET-' . str_pad(CustomerInvoice::where('type', 'return')->count() + 1, 5, '0', STR_PAD_LEFT),
                             'customer_id' => $customer->id,
@@ -592,12 +594,15 @@ XML;
                             'type' => 'return',
                         ]);
                         // create invoice item
-                        CustomerInvoiceItems::create([
-                            'customer_invoice_id' => $invoice->id,
-                            'product_id' => $request->products[0]['product_id'],
-                            'quantity' => $request->products[0]['quantity'],
-                            'unit_price' => $request->products[0]['unit_price'] ?? $request->products[0]['price'] ?? 0,
-                        ]);
+                        foreach ($request->products as $item) {
+                            $unitPrice = $item['unit_price'] ?? $item['price'] ?? 0;
+                            CustomerInvoiceItems::create([
+                                'customer_invoice_id' => $invoice->id,
+                                'product_id' => $item['product_id'],
+                                'quantity' => $item['quantity'],
+                                'unit_price' => $unitPrice,
+                            ]);
+                        }
                         Alert::success('نجاح', 'تم إرجاع المنتجات بنجاح اسحب الرصيد من الخزنة');
                         return redirect()->route('cashBoxes.show' , $cashBox->id);
                     }
@@ -670,7 +675,6 @@ XML;
                     $cashBox = CashBox::where('status', 'active')
                         ->where('user_id', auth()->id())
                         ->first();
-    
                     if (!$cashBox) {
                         $cashBox = CashBox::create([
                             'name' => 'الصندوق الرئيسي',
