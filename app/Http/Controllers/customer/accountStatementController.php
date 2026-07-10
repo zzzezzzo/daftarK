@@ -4,6 +4,7 @@ namespace App\Http\Controllers\customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerInvoiceRequest;
+use App\Http\Requests\UpdateCustomerInvoiceRequest;
 use App\Models\CashBox;
 use App\Models\CashBoxTransaction;
 use App\Models\Category;
@@ -799,7 +800,7 @@ XML;
         $products = Product::where('stock', '>', 0)->get();
         return view('customer.accountStatement.edit', compact('customer', 'invoice', 'products'));
     }
-    public function update(StoreCustomerInvoiceRequest $request, $customerId, $invoiceId)
+    public function update(UpdateCustomerInvoiceRequest $request, $customerId, $invoiceId)
     {
         $customer = Customer::findOrFail($customerId);
         $invoice = CustomerInvoice::with(['items', 'transactions'])->findOrFail($invoiceId);
