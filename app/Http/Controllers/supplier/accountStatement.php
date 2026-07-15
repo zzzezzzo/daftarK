@@ -58,7 +58,10 @@ class accountStatement extends Controller
         // $remaining_amount = 100;
         
         $remaining_amount = $invoices->sum('Remaining_amount');
-        return view('supplier.accountStatement.index' ,compact('supplier','invoices' ,'remaining_amount'));
+        // amount of the invoice returns 
+        $return_amount = $invoices->where('type', 'return')->sum('total_amount');
+        
+        return view('supplier.accountStatement.index' ,compact('supplier','invoices' ,'remaining_amount', 'return_amount'));
     }
 
     /**

@@ -808,7 +808,7 @@ XML;
             // total of the invoice 
             $total = collect($request->products)->sum(function($item) use ($customer) {
                 $product = Product::with(['category', 'category.priceRate'])->findOrFail($item['product_id']);
-                $unitPrice = $product->getPriceForCustomerType($customer->price_type);
+                $unitPrice = $item['unit_price'] ?? $item['price'] ?? 0;
                 return $item['quantity'] * $unitPrice;
             });
             // dd($total , $request->paid_amount);
@@ -839,7 +839,7 @@ XML;
                     else { $product->increment('stock', $diff); }
                     $invoiceItem->update([
                         'quantity' => $itemData['quantity'],
-                        'unit_price' => $product->getPriceForCustomerType($customer->price_type),
+                        'unit_price' => $itemData['unit_price'] ?? $itemData['price'] ?? 0,
                     ]);
                 } else {
                     $newProduct = Product::findOrFail($itemData['product_id']);
@@ -847,7 +847,7 @@ XML;
                         'customer_invoice_id' => $invoice->id,
                         'product_id' => $newProduct->id,
                         'quantity' => $itemData['quantity'],
-                        'unit_price' => $newProduct->getPriceForCustomerType($customer->price_type),
+                        'unit_price' => $itemData['unit_price'] ?? $itemData['price'] ?? 0,
                     ]);
 
                     if ($invoice->type === 'payment') { $newProduct->decrement('stock', $itemData['quantity']); }

@@ -139,6 +139,9 @@ function addProductToInvoice() {
     selectedProduct = null;
 
     showNotification("تم إضافة المنتج بنجاح", "success");
+
+    // إعادة المؤشر تلقائياً لخانة البحث للمنتج القادم
+    document.getElementById("productSearch").focus();
 }
 
 /* ===========================
@@ -308,6 +311,60 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             return true;
+        });
+    }
+
+    // --- حـل مشـكلة الإنتر: منع إرسال الفورم والانتقال بدل كده ---
+    const searchInput = document.getElementById("productSearch");
+    const qtyInput = document.getElementById("productQty");
+    const priceInput = document.getElementById("productPrice");
+
+    // 1. الإنتر في خانة البحث (يفيد مع سكانر الباركود)
+    if (searchInput) {
+        searchInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // منع حفظ الفاتورة
+
+                const query = this.value.trim().toLowerCase();
+                if (!query) return;
+
+                // البحث عن تطابق تام للكود
+                const exactMatch = window.products.find(
+                    p => p.code.toLowerCase() === query
+                );
+
+                if (exactMatch) {
+                    selectProduct(exactMatch);
+
+                    // الانتقال تلقائياً لخانة الكمية وتظليل الرقم لتعديله فوراً
+                    if (qtyInput) {
+                        qtyInput.focus();
+                        qtyInput.select();
+                    }
+                } else {
+                    showNotification("كود المنتج غير صحيح أو غير مسجل", "error");
+                }
+            }
+        });
+    }
+
+    // 2. الإنتر في خانة الكمية -> يضيف المنتج للفاتورة بدل ما يعمل submit
+    if (qtyInput) {
+        qtyInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                addProductToInvoice();
+            }
+        });
+    }
+
+    // 3. الإنتر في خانة السعر -> يضيف المنتج للفاتورة بدل ما يعمل submit
+    if (priceInput) {
+        priceInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                addProductToInvoice();
+            }
         });
     }
 });
