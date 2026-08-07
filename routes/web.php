@@ -73,6 +73,11 @@ Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::get('/supplier/transactions', [SupplierTransactionController::class, 'index'])->name('supplier.transactions.index');
     Route::get('/supplier/transactions/create', [SupplierTransactionController::class, 'create'])->name('supplier.transactions.create');
     Route::post('/supplier/transactions', [SupplierTransactionController::class, 'store'])->name('supplier.transactions.store');
+    // get the items in the invoice customer direct from the supplier invoice items 
+    Route::get('/supplier-invoices/list', [SupplierInvoiceController::class, 'listForImport'])
+    ->name('supplierInvoices.listForImport');
+    Route::get('/supplier-invoices/{supplierInvoice}/items', [SupplierInvoiceController::class, 'getItemsForImport'])
+    ->name('supplierInvoices.itemsForImport');
     // customer Route
     Route::get('/customer', [customerController::class, 'index'])->name('customer.index');
     Route::get('/customer/create', [customerController::class, 'create'])->name('customer.create');

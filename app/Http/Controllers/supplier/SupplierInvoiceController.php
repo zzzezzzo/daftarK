@@ -49,4 +49,51 @@ class SupplierInvoiceController extends Controller
         
         return view('supplier.invoices.index', compact('invoices'));
     }
+    public function listForImport(Request $request)
+{
+    $query = SupplierInvoice::with('supplier')
+        ->orderByDesc('date')
+        ->orderByDesc('id');
+
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('invoice_number', 'like', "%{$search}%")
+              ->orWhereHas('supplier', function ($sq) use ($search) {
+                  $sq->where('name', 'like', "%{$search}%");
+              });
+        });
+    }
+
+    $invoices = $query->limit(30)->get()->map(function ($invoice) {
+        return [
+            'id' => $invoice->id,
+            'invoice_number' => $invoice->invoice_number,
+            'supplier_name' => $invoice->supplier->name ?? '-',
+            'date' => optional($invoice->date)->format('Y-m-d'),
+            'total_amount' => $invoice->total_amount,
+            'items_count' => $invoice->items()->count(),
+        ];
+    });
+
+    return response()->json($invoices);
+}
+
+public function getItemsForImport(SupplierInvoice $supplierInvoice)
+{
+    $items = $supplierInvoice->items()->with('product')->get()->map(function ($item) {
+        return [
+            'product_id' => $item->product_id,
+            'product_name' => $item->product->name ?? 'منتج محذوف',
+            'quantity' => $item->quantity,
+            // سعر الشراء بيرجع للمرجعية فقط، مش هنستخدمه في فاتورة البيع
+            'purchase_price' => $item->price,
+        ];
+    });
+
+    return response()->json([
+        'invoice_number' => $supplierInvoice->invoice_number,
+        'items' => $items,
+    ]);
+}
 }

@@ -139,7 +139,40 @@
                                 <div class="text-sm text-gray-500 dark:text-gray-400">
                                     ابحث عن المنتج وأضفه للفاتورة
                                 </div>
+                                <!-- زرار استيراد من فاتورة مشتريات -->
+<div class="mt-4">
+    <button type="button"
+            onclick="openSupplierInvoiceModal()"
+            class="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-xl transition-all flex items-center gap-2 font-semibold shadow">
+        <i class="bi bi-box-arrow-in-down"></i>
+        استيراد أصناف من فاتورة مشتريات
+    </button>
+</div>
+
+<!-- Modal اختيار فاتورة المشتريات -->
+<div id="supplierInvoiceModal" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+        <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">اختر فاتورة مشتريات</h3>
+            <button type="button" onclick="closeSupplierInvoiceModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="bi bi-x-lg text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <input type="text" id="supplierInvoiceSearch"
+                   placeholder="ابحث برقم الفاتورة أو اسم المورد..."
+                   class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white"
+                   oninput="loadSupplierInvoices(this.value)">
+        </div>
+
+        <div id="supplierInvoicesList" class="overflow-y-auto p-4 space-y-2 flex-1">
+            <!-- الفواتير هتتحط هنا -->
+        </div>
+    </div>
+</div>
                             </div>
+
                             
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                                 <!-- Product Name -->

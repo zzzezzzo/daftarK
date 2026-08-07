@@ -13,6 +13,7 @@ use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\CustomerInvoiceItems;
 use App\Models\CustomerTransaction;
+use App\Models\SupplierInvoice;
 use App\Models\CustomerWallet;
 use App\Models\Product;
 use App\Services\CustomerWhatsAppStatementService;
@@ -511,6 +512,8 @@ XML;
     public function create($id){
         $customer = Customer::findOrFail($id);
         $products = Product::where('stock' ,'>=', 0)->get();
+        // $suppler_invoice = SupplierInvoice::items()->with(['product'])->get();
+        // dd($suppler_invoice);
         return view('customer.accountStatement.create', compact('customer', 'products'));
     }
 
@@ -1008,6 +1011,9 @@ XML;
             return redirect()->back();
         }           
     }
+    // app/Http/Controllers/SupplierInvoiceController.php
+
+
 
     /**
      * Create cash box transaction for customer payment

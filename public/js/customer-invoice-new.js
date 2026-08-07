@@ -284,3 +284,119 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+let supplierInvoicesSearchTimeout = null;
+
+function openSupplierInvoiceModal() {
+    document.getElementById('supplierInvoiceModal').classList.remove('hidden');
+    loadSupplierInvoices('');
+}
+
+function closeSupplierInvoiceModal() {
+    document.getElementById('supplierInvoiceModal').classList.add('hidden');
+}
+
+function loadSupplierInvoices(search) {
+    clearTimeout(supplierInvoicesSearchTimeout);
+    supplierInvoicesSearchTimeout = setTimeout(async () => {
+        const listEl = document.getElementById('supplierInvoicesList');
+        listEl.innerHTML = '<div class="text-center text-gray-400 py-6">جاري التحميل...</div>';
+
+        try {
+            const res = await fetch(`/supplier-invoices/list?search=${encodeURIComponent(search)}`);
+            const invoices = await res.json();
+
+            if (invoices.length === 0) {
+                listEl.innerHTML = '<div class="text-center text-gray-400 py-6">لا توجد فواتير</div>';
+                return;
+            }
+
+            listEl.innerHTML = invoices.map(inv => `
+                <button type="button"
+                        onclick="selectSupplierInvoice(${inv.id})"
+                        class="w-full text-right p-4 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-gray-800 dark:text-white">فاتورة رقم ${inv.invoice_number ?? inv.id}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">المورد: ${inv.supplier_name} — ${inv.date}</div>
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${inv.items_count} صنف</div>
+                    </div>
+                </button>
+            `).join('');
+        } catch (err) {
+            listEl.innerHTML = '<div class="text-center text-red-400 py-6">حدث خطأ أثناء التحميل</div>';
+        }
+    }, 300);
+}
+
+async function selectSupplierInvoice(invoiceId) {
+    try {
+        const res = await fetch(`/supplier-invoices/${invoiceId}/items`);
+        if (!res.ok) {
+            throw new Error(`Server returned ${res.status}`);
+        }
+        const data = await res.json();
+
+        const invoiceTypeElement = document.querySelector('select[name="type"]');
+        const invoiceType = invoiceTypeElement ? invoiceTypeElement.value : 'payment';
+
+        let addedCount = 0;
+        let skippedCount = 0;
+
+        data.items.forEach(item => {
+            const product = window.products.find(p => p.id == item.product_id);
+
+            if (!product) {
+                console.warn(`المنتج (ID: ${item.product_id}) غير موجود أو غير متاح للبيع`);
+                skippedCount++;
+                return;
+            }
+
+            const price = getPriceByCustomerType(product);
+            const qty = parseInt(item.quantity, 10) || 0;
+
+            if (qty <= 0) {
+                skippedCount++;
+                return;
+            }
+
+            // تحقق من المخزون في حالة فاتورة بيع فقط
+            if (invoiceType === 'payment' && qty > product.stock) {
+                showNotification(`تخطي "${product.name}": الكمية (${qty}) تتجاوز المتوفر (${product.stock})`, "error");
+                skippedCount++;
+                return;
+            }
+
+            // لو المنتج موجود بالفعل في الفاتورة، اجمع الكميات
+            const existingProduct = invoiceProducts.find((p) => p.id === product.id);
+            if (existingProduct) {
+                existingProduct.quantity += qty;
+                existingProduct.total = existingProduct.price * existingProduct.quantity;
+            } else {
+                invoiceProducts.push({
+                    id: product.id,
+                    name: product.name,
+                    price: price,
+                    quantity: qty,
+                    total: price * qty
+                });
+            }
+            addedCount++;
+        });
+
+        saveProducts();
+        renderProducts();
+        updateTotal();
+        closeSupplierInvoiceModal();
+
+        if (addedCount > 0) {
+            showNotification(`تم استيراد ${addedCount} صنف بنجاح${skippedCount > 0 ? ` (تم تخطي ${skippedCount})` : ''}`, "success");
+        } else {
+            showNotification("لم يتم استيراد أي صنف", "error");
+        }
+    } catch (err) {
+        console.error(err);
+        showNotification('حدث خطأ أثناء جلب أصناف الفاتورة', "error");
+    }
+}
+
