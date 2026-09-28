@@ -27,7 +27,12 @@ class accountStatement extends Controller
     public function index($id, Request $request){
         $supplier = Supplier::findOrFail($id);
         $invoices = $supplier->invoices();
-        // Add search functionality
+        // Add search functionality and the filter date from and to 
+        if($request->filled('from_date') && $request->filled('to_date')){
+            $fromDate = $request->from_date;
+            $toDate = $request->to_date;
+            $invoices->whereBetween('date', [$fromDate, $toDate]);
+        }
         if($request->filled('search')){
             $search = $request->search;
             $invoices->where(function($q) use ($search){

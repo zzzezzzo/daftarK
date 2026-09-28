@@ -164,6 +164,23 @@
                                     value="{{ request('search') }}" 
                                     placeholder="ابحث في الفواتير..." 
                                     class="w-full pr-12 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all">
+                                    
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="relative">
+                                    <input 
+                                        type="date" 
+                                        name="from_date" 
+                                        value="{{ request('from_date') }}" 
+                                        class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div class="relative">
+                                    <input 
+                                        type="date" 
+                                        name="to_date" 
+                                        value="{{ request('to_date') }}" 
+                                        class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                </div>
                             </div>
                             <select name="filter" class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                                 <option value="">جميع الفواتير</option>

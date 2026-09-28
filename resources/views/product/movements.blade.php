@@ -125,6 +125,7 @@
                                 <th>رقم الفاتورة</th>
                                 <th class="text-center">الكمية</th>
                                 <th class="text-center">تأثير المخزون</th>
+                                <th class="text-center">كمية المحزن الحالية </th>
                                 <th>السعر</th>
                                 <th>الإجمالي</th>
                             </tr>
@@ -167,6 +168,7 @@
                                 <td class="text-center tabular-nums font-bold {{ $row['stock_effect'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
                                     {{ $row['stock_effect'] >= 0 ? '+' : '' }}{{ $row['stock_effect'] }}
                                 </td>
+                                <td class="text-center tabular-nums font-semibold">{{ $row['stock_after'] }}</td>
                                 <td class="tabular-nums">{{ $fmt($row['unit_price']) }}</td>
                                 <td class="tabular-nums font-semibold">{{ $fmt($row['line_total']) }} ج.م</td>
                             </tr>

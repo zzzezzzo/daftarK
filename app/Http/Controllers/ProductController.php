@@ -376,13 +376,13 @@ XML;
     {
         $product = Product::with('category')->findOrFail($id);
 
-        $movements = collect();
-
+        // 1. جلب بنود فواتير العملاء
         $customerItems = CustomerInvoiceItems::where('product_id', $product->id)
-            ->with(['invoice.customer'])
             ->whereHas('invoice')
+            ->with(['invoice.customer'])
             ->get();
 
+        $movements = collect();
         foreach ($customerItems as $item) {
             $invoice = $item->invoice;
             $isReturn = $invoice->type === 'return';
@@ -393,6 +393,7 @@ XML;
 
             $movements->push([
                 'date' => $date,
+                'created_at' => $invoice->created_at ?? $date, // للترتيب الدقيق في حال تساوي التواريخ
                 'type' => $isReturn ? 'return_in' : 'sale',
                 'type_label' => $isReturn ? 'مرتجع من عميل' : 'بيع لعميل',
                 'party' => $invoice->customer?->name ?? '—',
@@ -401,15 +402,16 @@ XML;
                 'invoice_id' => $invoice->id,
                 'party_id' => $invoice->customer_id,
                 'quantity' => $qty,
-                'stock_effect' => $isReturn ? $qty : -$qty,
+                'stock_effect' => $isReturn ? $qty : -$qty, // المرتجع يزيد المخزون، البيع ينقصه
                 'unit_price' => (float) $item->unit_price,
                 'line_total' => round($qty * (float) $item->unit_price, 2),
             ]);
         }
 
+        // 2. جلب بنود فواتير الموردين
         $supplierItems = SupplierInvoiceItems::where('product_id', $product->id)
-            ->with(['invoice.supplier'])
             ->whereHas('invoice')
+            ->with(['invoice.supplier'])
             ->get();
 
         foreach ($supplierItems as $item) {
@@ -422,6 +424,7 @@ XML;
 
             $movements->push([
                 'date' => $date,
+                'created_at' => $invoice->created_at ?? $date,
                 'type' => $isReturn ? 'return_out' : 'purchase',
                 'type_label' => $isReturn ? 'مرتجع لمورد' : 'شراء من مورد',
                 'party' => $invoice->supplier?->name ?? '—',
@@ -430,41 +433,62 @@ XML;
                 'invoice_id' => $invoice->id,
                 'party_id' => $invoice->supplier_id,
                 'quantity' => $qty,
-                'stock_effect' => $isReturn ? -$qty : $qty,
+                'stock_effect' => $isReturn ? -$qty : $qty, // الشراء يزيد المخزون، مرتجع المورد ينقصه
                 'unit_price' => (float) $item->unit_price,
                 'line_total' => round($qty * (float) $item->unit_price, 2),
             ]);
         }
 
+        // 3. ترتيب الحركات تصاعدياً (من الأقدم للأحدث) لحساب stock_after التراكمي الصحيح
+        $sortedMovements = $movements->sortBy(fn($m) => $m['date'] . '_' . $m['created_at']);
+
+        $runningStock = 0;
+        $processedMovements = collect();
+
+        foreach ($sortedMovements as $m) {
+            $runningStock += $m['stock_effect'];
+            $m['stock_after'] = $runningStock;
+            $processedMovements->push($m);
+        }
+
+        // 4. تطبيق التصفية/الفلاتر (Search & Dates & Type)
         if ($request->filled('from_date')) {
-            $movements = $movements->filter(fn ($m) => $m['date'] >= $request->from_date);
+            $processedMovements = $processedMovements->filter(fn ($m) => $m['date'] >= $request->from_date);
         }
         if ($request->filled('to_date')) {
-            $movements = $movements->filter(fn ($m) => $m['date'] <= $request->to_date);
+            $processedMovements = $processedMovements->filter(fn ($m) => $m['date'] <= $request->to_date);
         }
         if ($request->filled('type')) {
-            $movements = $movements->where('type', $request->type);
+            $processedMovements = $processedMovements->where('type', $request->type);
         }
         if ($request->filled('search')) {
             $search = mb_strtolower($request->search);
-            $movements = $movements->filter(function ($m) use ($search) {
+            $processedMovements = $processedMovements->filter(function ($m) use ($search) {
                 return str_contains(mb_strtolower($m['party']), $search)
                     || str_contains(mb_strtolower($m['invoice_number']), $search);
             });
         }
 
-        $movements = $movements->sortByDesc('date')->values();
+        // 5. إعادة ترتيب الحركات لتظهر التواريخ الأحدث في الأعلى للعرض
+        $movements = $processedMovements->sortByDesc(fn($m) => $m['date'] . '_' . $m['created_at'])->values();
+
+        // 6. حساب قيمة المخزون الحالية والإحصائيات
+        // ملاحظة: افترضنا وجود سعر شراء أو سعر بيع في موديل المنتج ($product->purchase_price أو $product->price)
+        $unitPrice = $product->purchase_price ?? $product->cost_price ?? $product->price ?? 0;
+        $currentStockValue = round(($product->stock ?? 0) * (float) $unitPrice, 2);
 
         $stats = [
-            'sold' => $movements->where('type', 'sale')->sum('quantity'),
-            'returned_in' => $movements->where('type', 'return_in')->sum('quantity'),
-            'purchased' => $movements->where('type', 'purchase')->sum('quantity'),
-            'returned_out' => $movements->where('type', 'return_out')->sum('quantity'),
-            'stock_in' => $movements->where('stock_effect', '>', 0)->sum('stock_effect'),
-            'stock_out' => abs($movements->where('stock_effect', '<', 0)->sum('stock_effect')),
-            'net_stock' => $movements->sum('stock_effect'),
-            'total_value' => round($movements->sum('line_total'), 2),
-            'count' => $movements->count(),
+            'current_stock'       => $product->stock ?? 0,              // الكمية الحالية في المخزن
+            'current_stock_value' => $currentStockValue,                // القيمة المالية الحالية للمخزون
+            'sold'                => $movements->where('type', 'sale')->sum('quantity'),
+            'returned_in'         => $movements->where('type', 'return_in')->sum('quantity'),
+            'purchased'           => $movements->where('type', 'purchase')->sum('quantity'),
+            'returned_out'        => $movements->where('type', 'return_out')->sum('quantity'),
+            'stock_in'            => $movements->where('stock_effect', '>', 0)->sum('stock_effect'),
+            'stock_out'           => abs($movements->where('stock_effect', '<', 0)->sum('stock_effect')),
+            'net_stock'           => $movements->sum('stock_effect'),
+            'total_value'         => round($movements->sum('line_total'), 2),
+            'count'               => $movements->count(),
         ];
 
         return view('product.movements', compact('product', 'movements', 'stats'));
