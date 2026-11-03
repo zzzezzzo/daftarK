@@ -141,7 +141,7 @@
                                         </div>
                                     </td>
                                     <td class="p-4 text-gray-600 dark:text-gray-400">
-                                        {{-- {{ $transaction->transaction_date ? $transaction->transaction_date->format('Y-m-d') : $transaction->created_at->format('Y-m-d H:i') }} --}}
+                                       {{ $transaction->created_at->format('Y-m-d') }}
                                     </td>
                                     <td class="p-4">
                                         <span class="px-2 py-1 rounded-full text-xs font-medium 
