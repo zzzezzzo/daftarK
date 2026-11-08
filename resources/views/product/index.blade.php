@@ -29,6 +29,11 @@
                                 <i class="bi bi-printer"></i>
                                 <span>طباعة باركود للمنتجات المتاحة </span>
                             </a>
+                            <a href="{{ route('products.out-of-stock') }}"
+                               class="bg-red-500/90 hover:bg-red-400/90 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-md">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>المنتجات غير المتوفرة</span>
+                            </a>
                             <a href="{{ route('products.create') }}" 
                                class="bg-white/20 hover:bg-white/30 backdrop-blur px-4 py-2 rounded-xl transition-all flex items-center gap-2">
                                 <i class="bi bi-plus-lg"></i>

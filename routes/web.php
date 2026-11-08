@@ -29,6 +29,7 @@ Route::middleware(['auth', 'is_admin:admin'])->group(function () {
     Route::get('/reports/daily', [DailyReportController::class, 'index'])->name('reports.daily');
     // product routes
     Route::get('/products',[ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/out-of-stock', [ProductController::class, 'outOfStock'])->name('products.out-of-stock');
     Route::get('/products/export/excel', [ProductController::class, 'exportExcel'])->name('products.export.excel');
     Route::get('/products/labels/print', [ProductController::class, 'printAllLabels'])->name('products.labels.print');
     Route::get('/products/{product}/label/print', [ProductController::class, 'printOneLabel'])->name('products.label.print');

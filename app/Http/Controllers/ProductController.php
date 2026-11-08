@@ -25,8 +25,28 @@ class ProductController extends Controller
             });
         }
         $products =$products->latest()->paginate(10)->withQueryString();
-        $outofstockProduct = Product::where('stock', 0)->get();
-        return view('product.index', compact('products', 'outofstockProduct'));
+        return view('product.index', compact('products'));
+    }
+
+    public function outOfStock(Request $request)
+    {
+        $validated = $request->validate([
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+        ]);
+
+        $products = Product::with('category')
+            ->where('stock', 0)
+            ->when(
+                $validated['category_id'] ?? null,
+                fn ($query, $categoryId) => $query->where('category_id', $categoryId)
+            )
+            ->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
+
+        $categories = Category::orderBy('name')->get();
+
+        return view('product.out-of-stock', compact('products', 'categories'));
     }
     
     public function create()

@@ -83,9 +83,16 @@
 
             <li>
                 <a href="{{ route('products.index') }}"
-                   class="sidebar-link {{ request()->routeIs('products.*') ? 'sidebar-link-active' : '' }}">
+                   class="sidebar-link {{ request()->routeIs('products.*') && !request()->routeIs('products.out-of-stock') ? 'sidebar-link-active' : '' }}">
                     <i class="bi bi-box-seam text-lg text-pink-500"></i>
                     <span>المخزون والمنتجات</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('products.out-of-stock') }}"
+                   class="sidebar-link {{ request()->routeIs('products.out-of-stock') ? 'sidebar-link-active' : '' }}">
+                    <i class="bi bi-exclamation-circle text-lg text-red-500"></i>
+                    <span>المنتجات غير المتوفرة</span>
                 </a>
             </li>
             <li>
