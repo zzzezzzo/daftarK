@@ -9,6 +9,7 @@ use App\Models\CustomerInvoiceItems;
 use App\Models\Product;
 use App\Models\SupplierInvoiceItems;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 
@@ -32,17 +33,106 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'from_date' => ['nullable', 'date'],
+            'to_date' => ['nullable', 'date', 'after_or_equal:from_date'],
         ]);
 
-        $products = Product::with('category')
-            ->where('stock', 0)
+        $products = Product::with(['category', 'saleItems.invoice', 'purchaseItems.invoice'])
+            ->where('stock', '<=', 3)
+            ->whereHas('saleItems', function ($query) {
+                $query->whereHas('invoice', fn ($invoiceQuery) => $invoiceQuery->where('type', 'payment'));
+            })
             ->when(
                 $validated['category_id'] ?? null,
                 fn ($query, $categoryId) => $query->where('category_id', $categoryId)
             )
             ->orderBy('name')
-            ->paginate(15)
-            ->withQueryString();
+            ->get()
+            ->map(function (Product $product) {
+                $movements = [];
+
+                foreach ($product->saleItems as $item) {
+                    $invoice = $item->invoice;
+                    if (!$invoice) {
+                        continue;
+                    }
+
+                    $isReturn = $invoice->type === 'return';
+                    $movements[] = [
+                        'date' => Carbon::parse($invoice->date)->format('Y-m-d'),
+                        'created_at' => $invoice->created_at?->format('Y-m-d H:i:s') ?? '',
+                        'id' => $invoice->id,
+                        'item_id' => $item->id,
+                        'type' => $isReturn ? 'customer_return' : 'sale',
+                        'stock_effect' => $isReturn ? (int) $item->quantity : -(int) $item->quantity,
+                    ];
+                }
+
+                foreach ($product->purchaseItems as $item) {
+                    $invoice = $item->invoice;
+                    if (!$invoice) {
+                        continue;
+                    }
+
+                    $isReturn = $invoice->type === 'return';
+                    $movements[] = [
+                        'date' => Carbon::parse($invoice->date)->format('Y-m-d'),
+                        'created_at' => $invoice->created_at?->format('Y-m-d H:i:s') ?? '',
+                        'id' => $invoice->id,
+                        'item_id' => $item->id,
+                        'type' => $isReturn ? 'supplier_return' : 'purchase',
+                        'stock_effect' => $isReturn ? -(int) $item->quantity : (int) $item->quantity,
+                    ];
+                }
+
+                usort($movements, fn ($left, $right) => [
+                    $left['date'],
+                    $left['created_at'],
+                    $left['type'],
+                    $left['id'],
+                    $left['item_id'],
+                ] <=> [
+                    $right['date'],
+                    $right['created_at'],
+                    $right['type'],
+                    $right['id'],
+                    $right['item_id'],
+                ]);
+
+                $runningStock = 0;
+                $depletedAt = null;
+                foreach ($movements as $movement) {
+                    $stockBeforeMovement = $runningStock;
+                    $runningStock += $movement['stock_effect'];
+
+                    if ($stockBeforeMovement > 0 && $runningStock <= 0 && $movement['stock_effect'] < 0) {
+                        $depletedAt = $movement['date'];
+                    }
+                }
+
+                $product->setAttribute('depleted_at', $depletedAt);
+
+                return $product;
+            })
+            ->filter(function (Product $product) use ($validated) {
+                if (!$product->depleted_at) {
+                    return false;
+                }
+
+                return (!isset($validated['from_date']) || $product->depleted_at >= $validated['from_date'])
+                    && (!isset($validated['to_date']) || $product->depleted_at <= $validated['to_date']);
+            })
+            ->values();
+
+        $perPage = 15;
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $products = new LengthAwarePaginator(
+            $products->forPage($page, $perPage)->values(),
+            $products->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         $categories = Category::orderBy('name')->get();
 

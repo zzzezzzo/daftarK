@@ -5,6 +5,7 @@ namespace App\Http\Controllers\customer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerInvoiceRequest;
 use App\Http\Requests\UpdateCustomerInvoiceRequest;
+use App\Jobs\SendProductSoldOutTelegramNotification;
 use App\Models\CashBox;
 use App\Models\CashBoxTransaction;
 use App\Models\Category;
@@ -21,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class accountStatementController extends Controller
@@ -556,8 +558,9 @@ XML;
         $customer = Customer::findOrFail($id);
         // dd($customer->type);
         $invoice = null;
+        $soldOutProductIds = [];
         try{
-            DB::transaction(function() use ($request, $customer, &$invoice) {
+            DB::transaction(function() use ($request, $customer, &$invoice, &$soldOutProductIds) {
                 // 1. حساب إجمالي الفاتورة
                 $total = collect($request->products)->sum(function($item) use ($customer) {
                     $product = Product::with(['category', 'category.priceRate'])->findOrFail($item['product_id']);
@@ -669,7 +672,11 @@ XML;
                     ]);
     
                     if ($request->type === 'payment') {
+                        $stockBeforeSale = $product->stock;
                         $product->decrement('stock', $item['quantity']);
+                        if ($stockBeforeSale > 0 && $product->stock <= 0) {
+                            $soldOutProductIds[$product->id] = $product->id;
+                        }
                     } elseif ($request->type === 'return') {
                         $product->increment('stock', $item['quantity']);
                     }
@@ -746,6 +753,7 @@ XML;
             if ($request->paid_amount > 0 && $invoice) {
                 $this->createCashBoxTransaction($request->paid_amount, $invoice, $customer);
             }
+            $this->queueSoldOutNotifications($soldOutProductIds);
             Alert::success('نجاح', 'تم إنشاء الفاتورة بنجاح!');
             return redirect()->route('customerAccountStatement.index', $customer->id)
                             ->with('success', 'تم إنشاء الفاتورة بنجاح!');
@@ -807,7 +815,8 @@ XML;
     {
         $customer = Customer::findOrFail($customerId);
         $invoice = CustomerInvoice::with(['items', 'transactions'])->findOrFail($invoiceId);
-        DB::transaction(function() use ($request, $customer, $invoice) {
+        $soldOutProductIds = [];
+        DB::transaction(function() use ($request, $customer, $invoice, &$soldOutProductIds) {
             // total of the invoice 
             $total = collect($request->products)->sum(function($item) use ($customer) {
                 $product = Product::with(['category', 'category.priceRate'])->findOrFail($item['product_id']);
@@ -838,7 +847,13 @@ XML;
                     $invoiceItem = CustomerInvoiceItems::find($itemData['id']);
                     $product = Product::find($invoiceItem->product_id);
                     $diff = $itemData['quantity'] - $invoiceItem->quantity;
-                    if ($invoice->type === 'payment') { $product->decrement('stock', $diff); }
+                    if ($invoice->type === 'payment') {
+                        $stockBeforeSale = $product->stock;
+                        $product->decrement('stock', $diff);
+                        if ($diff > 0 && $stockBeforeSale > 0 && $product->stock <= 0) {
+                            $soldOutProductIds[$product->id] = $product->id;
+                        }
+                    }
                     else { $product->increment('stock', $diff); }
                     $invoiceItem->update([
                         'quantity' => $itemData['quantity'],
@@ -853,7 +868,13 @@ XML;
                         'unit_price' => $itemData['unit_price'] ?? $itemData['price'] ?? 0,
                     ]);
 
-                    if ($invoice->type === 'payment') { $newProduct->decrement('stock', $itemData['quantity']); }
+                    if ($invoice->type === 'payment') {
+                        $stockBeforeSale = $newProduct->stock;
+                        $newProduct->decrement('stock', $itemData['quantity']);
+                        if ($stockBeforeSale > 0 && $newProduct->stock <= 0) {
+                            $soldOutProductIds[$newProduct->id] = $newProduct->id;
+                        }
+                    }
                     else { $newProduct->increment('stock', $itemData['quantity']); }
                 }
             }
@@ -922,9 +943,31 @@ XML;
             }
         });
 
+        $this->queueSoldOutNotifications($soldOutProductIds);
+
         return redirect()->route('customerAccountStatement.index', $customer->id)
                         ->with('success', 'تم تحديث الفاتورة والمخزون بنجاح!');
     }
+
+    private function queueSoldOutNotifications(array $productIds): void
+    {
+        if (empty($productIds)) {
+            return;
+        }
+
+        if (blank(config('services.telegram.bot_token')) || blank(config('services.telegram.admin_chat_id'))) {
+            Log::warning('Telegram product sold-out alert was skipped because Telegram credentials are not configured.', [
+                'product_ids' => array_values($productIds),
+            ]);
+
+            return;
+        }
+
+        foreach (array_values($productIds) as $productId) {
+            SendProductSoldOutTelegramNotification::dispatch($productId)->afterCommit();
+        }
+    }
+
     public function destroy($customerId, $invoiceId)
     {
         $customer = Customer::findOrFail($customerId);

@@ -10,7 +10,7 @@
                             </div>
                             <div>
                                 <h1 class="text-2xl font-bold">المنتجات غير المتوفرة</h1>
-                                <p class="text-blue-100/90 text-sm">المنتجات التي الكمية المتاحة منها تساوي صفر</p>
+                                <p class="text-blue-100/90 text-sm">المنتجات التي نفدت بعد حركة فعلية على المخزون</p>
                             </div>
                         </div>
                         <a href="{{ route('products.index') }}" class="ui-btn-ghost">
@@ -20,8 +20,9 @@
                     </div>
                 </div>
                 <div class="p-5">
-                    <form action="{{ route('products.out-of-stock') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
-                        <label for="category_id" class="sr-only">تصفية حسب الفئة</label>
+                    <form action="{{ route('products.out-of-stock') }}" method="GET" class="flex flex-col lg:flex-row lg:items-end gap-3">
+                        <div class="flex-1">
+                            <label for="category_id" class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">الفئة</label>
                         <select
                             id="category_id"
                             name="category_id"
@@ -34,11 +35,32 @@
                                 </option>
                             @endforeach
                         </select>
+                        </div>
+                        <div>
+                            <label for="from_date" class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">نفد من تاريخ</label>
+                            <input
+                                type="date"
+                                id="from_date"
+                                name="from_date"
+                                value="{{ request('from_date') }}"
+                                class="rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-brand-500 focus:ring-brand-500"
+                            >
+                        </div>
+                        <div>
+                            <label for="to_date" class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">إلى تاريخ</label>
+                            <input
+                                type="date"
+                                id="to_date"
+                                name="to_date"
+                                value="{{ request('to_date') }}"
+                                class="rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-brand-500 focus:ring-brand-500"
+                            >
+                        </div>
                         <button type="submit" class="ui-btn-primary justify-center">
                             <i class="bi bi-funnel"></i>
                             تصفية
                         </button>
-                        @if(request()->filled('category_id'))
+                        @if(request()->filled('category_id') || request()->filled('from_date') || request()->filled('to_date'))
                             <a href="{{ route('products.out-of-stock') }}" class="ui-btn bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 justify-center">
                                 <i class="bi bi-x-circle"></i>
                                 إلغاء الفلتر
@@ -69,6 +91,7 @@
                                     <th class="p-4 text-right font-semibold">الكود</th>
                                     <th class="p-4 text-right font-semibold">اسم المنتج</th>
                                     <th class="p-4 text-right font-semibold">الفئة</th>
+                                    <th class="p-4 text-center font-semibold">تاريخ النفاد</th>
                                     <th class="p-4 text-center font-semibold">الكمية</th>
                                     <th class="p-4 text-center font-semibold">إجراءات</th>
                                 </tr>
@@ -81,6 +104,7 @@
                                         </td>
                                         <td class="p-4 font-semibold text-slate-800 dark:text-white">{{ $product->name }}</td>
                                         <td class="p-4 text-slate-600 dark:text-slate-300">{{ $product->category?->name ?? 'بدون فئة' }}</td>
+                                        <td class="p-4 text-center text-slate-600 dark:text-slate-300">{{ $product->depleted_at }}</td>
                                         <td class="p-4 text-center">
                                             <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 text-sm font-semibold">
                                                 {{ $product->stock }}
